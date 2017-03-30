@@ -38,6 +38,10 @@ android.libraryVariants.all { variant ->
     }
 }
 
+apply plugin: 'com.github.dcendents.android-maven'
+
+group='com.github.idish'
+
 if (project.hasProperty('PUBLISH_GROUP_ID')) {
     // from http://stackoverflow.com/a/19484146/115145
 
@@ -86,8 +90,4 @@ if (project.hasProperty('PUBLISH_GROUP_ID')) {
             repository(url: LOCAL_REPO)
         }
     }
-
-    apply plugin: 'com.github.dcendents.android-maven'
-
-    group='com.github.idish'
 }
