@@ -1,5 +1,6 @@
 apply plugin: 'com.android.library'
 
+
 dependencies {
     compile 'com.github.clans:fab:1.6.4'
     compile 'org.greenrobot:eventbus:3.0.0'
@@ -85,4 +86,8 @@ if (project.hasProperty('PUBLISH_GROUP_ID')) {
             repository(url: LOCAL_REPO)
         }
     }
+
+    apply plugin: 'com.github.dcendents.android-maven'
+
+    group='com.github.idish'
 }
