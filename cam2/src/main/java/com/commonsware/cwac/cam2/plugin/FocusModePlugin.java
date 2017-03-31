@@ -24,6 +24,7 @@ import android.os.Build;
 import android.util.Log;
 import android.view.OrientationEventListener;
 import com.commonsware.cwac.cam2.CameraConfigurator;
+import com.commonsware.cwac.cam2.CameraConstraints;
 import com.commonsware.cwac.cam2.CameraPlugin;
 import com.commonsware.cwac.cam2.CameraSession;
 import com.commonsware.cwac.cam2.ClassicCameraConfigurator;
@@ -196,15 +197,9 @@ public class FocusModePlugin implements CameraPlugin {
         desiredMode=CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_PICTURE;
       }
 
-      if ("Sony".equals(Build.MANUFACTURER) &&
-        ("C6603".equals(Build.PRODUCT) ||
-          "D5803".equals(Build.PRODUCT) ||
-          "C6802".equals(Build.PRODUCT))) {
-        desiredMode=CameraMetadata.CONTROL_AF_MODE_OFF;
-      }
-      else if ("htc".equals(Build.MANUFACTURER) &&
-        ("volantis".equals(Build.PRODUCT) ||
-          "volantisg".equals(Build.PRODUCT))) {
+      CameraConstraints constraints=CameraConstraints.get();
+
+      if (constraints!=null && constraints.getDisableFocusMode()) {
         desiredMode=CameraMetadata.CONTROL_AF_MODE_OFF;
       }
 

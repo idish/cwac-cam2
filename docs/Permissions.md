@@ -13,18 +13,23 @@ for your apps with respect to permissions.
 
 ## Android 6.0 Runtime Permissions
 
-On Android 6.0, all three of the permissions listed above are
+On Android 6.0+, all three of the permissions listed above are
 considered `dangerous` permissions and therefore are subject to the
 new runtime permission system. That means that not only do you
 need the `<uses-permission>` element in the manifest for the permission,
 but you need to ask the user for the permission at runtime, until
 the user grants it (or tells you to stop asking).
 
-The library will handle some bare-bones work related to this,
-asking the user for `CAMERA` and `RECORD_AUDIO`. However, really,
-this logic should be in the app, not the library, as you will need to
-deal with the cases where the user declines the permission (the library
-just finishes its activity and returns control to you).
+By default, the library will not request these runtime permissions.
+This logic should be in the app, not the library, as you will need to
+deal with the cases where the user declines the permission. The library will check to
+see if the permissions have been granted, and if they have not, the
+library will fail quickly.
+
+If you *really* want the library to handle these permissions,
+call `requestPermissions()` on the `IntentBuilder` that you are using.
+In that case, the library will handle some bare-bones work related to this,
+asking the user for `CAMERA` and `RECORD_AUDIO`. 
 
 This documentation is not designed to provide complete instructions
 for using the runtime permission system. Please refer to
@@ -34,8 +39,9 @@ details.
 
 The `demo` app implements a fairly rudimentary check for
 runtime permissions. The `demo-playground` app has
-`targetSdkVersion` set to 22, to demonstrate a "legacy" app
-using the library.
+a `SwitchPreference` for controlling whether `requestPermissions()` is
+called; the app will crash if that `Switch` is not on and you try taking a
+picture or recording a video.
 
 ## Blocking Permissions
 

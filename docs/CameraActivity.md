@@ -22,22 +22,25 @@ and what their behavior is:
 
 | `IntentBuilder` Method     | Extra Key                        | Data Type                                 | Purpose |
 |:--------------------------:|:--------------------------------:|:-----------------------------------------:|---------|
+| `confirmationQuality()`    | `EXTRA_CONFIRMATION_QUALITY`     | `float` in the (0.0f, 1.0f] range         | The fraction of the app's heap limit that we should be willing to try to use to load the image for confirmation |
 | `debug()`                  | `EXTRA_DEBUG_ENABLED`            | `boolean`                                 | Indicate if extra debugging information should be dumped to LogCat (default is `false`) |
+| `debugSavePreviewFrame()`  | `EXTRA_DEBUG_SAVE_PREVIEW_FRAME` | `boolean`                                 | Indicate if a preview frame should be saved when a picture is taken (default is `false`) |
 | `facing()`                 | `EXTRA_FACING`                   | `AbstractCameraActivity.Facing`           | Indicate the preferred camera to start with (`BACK` or `FRONT`, default is `BACK`) |
+| `flashModes()`             | `EXTRA_FLASH_MODES`              | `List<FlashMode>`                         | Request a particular flash mode `FlashMode.OFF`, `FlashMode.ALWAYS`, `FlashMode.AUTO`, `FlashMode.REDYE` (default is device default) |
+| `focusMode()`              | `EXTRA_FOCUS_MODE`               | `FocusMode`                               | Indicate the desired focus mode for the camera (default is continuous if available, else device default) |
 | `forceEngine()`            | `EXTRA_FORCE_ENGINE`             | `CameraEngine.ID`                         | Indicate a camera engine to use (`CLASSIC` or `CAMERA2`), default is determined by algorithm |
+| `mirrorPreview()`          | `EXTRA_MIRROR_PREVIEW`           | `boolean`                                 | Indicate if preview should be horizontally flipped (default is `false`)|
+| `onError()`                | `EXTRA_UNHANDLED_ERROR_RECEIVER` | `ResultReceiver`                          | Provide a IPC callback to be notified about errors inside Cam2 |
+| `orientationLockMode()`    | `EXTRA_ORIENTATION_LOCK_MODE`    | `OrientationLockMode`                     | Locks the device orientation (`PORTRAIT` or `LANDSCAPE`) or allows for config changes (`DEFAULT`) |
+| `quality()`                | `MediaStore.EXTRA_VIDEO_QUALITY` | `AbstractCameraActivity.Quality`          | Indicate the quality, either `Quality.LOW` or `Quality.HIGH` (default=high) |
+| `requestPermissions()`     | `EXTRA_FAIL_IF_NO_PERMISSION`    | none (extra takes a `boolean`)            | Indicates if the library should request runtime permissions if your app did not do so already |
+| `showRuleOfThirdsGrid()`   | `EXTRA_SHOW_RULE_OF_THIRDS_GRID` | `boolean`                                 | Whether a "rule of thirds" grid should overlay the preview (default: `false`) |
 | `skipConfirm()`            | `EXTRA_CONFIRM`                  | `boolean`                                 | Indicate if the user should be presented with a preview of the image and needs to accept it before proceeding (default is to show the confirmation screen) |
+| `skipOrientationNormalization()` | `EXTRA_SKIP_ORIENTATION_NORMALIZATION` | `boolean`                     | `true` if we should leave images alone, `false` if we should rotate them based on EXIF headers (default is `false`) |
+| `timer()`                  | `EXTRA_TIMER_DURATION`           | `int` (seconds)                           | Show a countdown timer, and automatically take the picture if not already taken/cancelled |
 | `to()`                     | `MediaStore.EXTRA_OUTPUT`        | `Uri` (though `to()` also accepts `File`) | Destination for picture to be written, where `null` means to return a thumbnail via the `data` extra (default is `null`) |
 | `updateMediaStore()`       | `EXTRA_UPDATE_MEDIA_STORE`       | `boolean`                                 | Indicate if `MediaStore` should be notified about newly-captured photo (default is `false`)|
-| `mirrorPreview()`          | `EXTRA_MIRROR_PREVIEW`           | `boolean`                                 | Indicate if preview should be horizontally flipped (default is `false`)|
-| `focusMode()`              | `EXTRA_FOCUS_MODE`               | `FocusMode`                               | Indicate the desired focus mode for the camera (default is continuous if available, else device default) |
-| `debugSavePreviewFrame()`  | `EXTRA_DEBUG_SAVE_PREVIEW_FRAME` | `boolean`                                 | Indicate if a preview frame should be saved when a picture is taken (default is `false`) |
-| `flashModes()`             | `EXTRA_FLASH_MODES`              | `List<FlashMode>`                         | Request a particular flash mode `FlashMode.OFF`, `FlashMode.ALWAYS`, `FlashMode.AUTO`, `FlashMode.REDYE` (default is device default) |
 | `zoomStyle()`              | `EXTRA_ZOOM_STYLE`               | `ZoomStyle`                               | Request to allow the user to change zoom levels, via gestures (`ZoomStyle.PINCH`) or a `SeekBar` (`ZoomStyle.SEEKBAR`). Default is `ZoomStyle.NONE` for no zoom option |
-| `quality()`                | `MediaStore.EXTRA_VIDEO_QUALITY` | `AbstractCameraActivity.Quality`          | Indicate the quality, either `Quality.LOW` or `Quality.HIGH` (default=high) |
-| `confirmationQuality()`    | `EXTRA_CONFIRMATION_QUALITY`     | `float` in the (0.0f, 1.0f] range         | The fraction of the app's heap limit that we should be willing to try to use to load the image for confirmation |
-| `onError()`                | `EXTRA_UNHANDLED_ERROR_RECEIVER` | `ResultReceiver`                          | Provide a IPC callback to be notified about errors inside Cam2 |
-| `skipOrientationNormalization()` | `EXTRA_SKIP_ORIENTATION_NORMALIZATION` | `boolean`                     | `true` if we should leave images alone, `false` if we should rotate them based on EXIF headers (default is `false`) |
-| `orientationLockMode()`    | `EXTRA_ORIENTATION_LOCK_MODE`    | `OrientationLockMode`                     | Locks the device orientation (`PORTRAIT` or `LANDSCAPE`) or allows for config changes (`DEFAULT`) |
 
 Note that if you are going to use `skipConfirm()`, you need to call
 that first on the `IntentBuilder` before any of the others.

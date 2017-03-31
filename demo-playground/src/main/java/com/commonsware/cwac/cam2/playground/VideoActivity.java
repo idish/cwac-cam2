@@ -77,7 +77,8 @@ public class VideoActivity extends Activity
                                Intent data) {
     if (requestCode==REQUEST_VIDEO) {
       if (resultCode == Activity.RESULT_OK) {
-        Intent i=new Intent(Intent.ACTION_VIEW, output);
+        Intent i=new Intent(Intent.ACTION_VIEW, output)
+          .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
         try {
           startActivity(i);

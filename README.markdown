@@ -42,7 +42,7 @@ repositories {
 }
 
 dependencies {
-    compile 'com.commonsware.cwac:cam2:0.6.9'
+    compile 'com.commonsware.cwac:cam2:0.7.4'
 }
 ```
 
@@ -75,6 +75,16 @@ the library-provided activities. In other words, do not have
 
 Upgrade Notes
 -------------
+If you are moving from prior versions to 0.7.0 or higher, note
+that this library now uses v3.0.0 of [greenrobot's EventBus](https://github.com/greenrobot/EventBus),
+whereas previous versions of the library used a 2.x.x generation
+of that library. This should not impact your own use of either
+version of greenrobot's EventBus. Also note that the library will not
+request runtime permissions on Android 6.0+ by default, as your app should be
+doing that. You can call `requestPermissions()` on the `IntentBuilder`
+to have the library request the permissions instead. See
+[the permissions documentation](docs/Permissions.md) for more.
+
 If you are moving from 0.5.x to 0.6.0 or higher, please note that
 the default camera engine is now the one using `android.hardware.Camera`.
 The `forceClassic()` method is deprecated, replaced with
@@ -121,7 +131,7 @@ use of it, from being obfuscated.
 
 Version
 -------
-This is version v0.6.9 of this library, which means it is coming
+This is version v0.7.4 of this library, which means it is coming
 along slowly.
 
 Demo
@@ -159,7 +169,7 @@ file.
 Questions
 ---------
 If you have questions regarding the use of this code, please post a question
-on [StackOverflow](http://stackoverflow.com/questions/ask) tagged with
+on [Stack Overflow](http://stackoverflow.com/questions/ask) tagged with
 `commonsware-cwac` and `android` after [searching to see if there already is an answer](https://stackoverflow.com/search?q=[commonsware-cwac]+camera). Be sure to indicate
 what CWAC module you are having issues with, and be sure to include source code 
 and stack traces if you are encountering crashes.
@@ -169,10 +179,27 @@ please read [the contribution guidelines](.github/CONTRIBUTING.md), then
 post an [issue](https://github.com/commonsguy/cwac-cam2/issues).
 **Be certain to include complete steps for reproducing the issue.**
 
+You are also welcome to join
+[the CommonsWare Community](https://community.commonsware.com/)
+and post questions
+and ideas to [the CWAC category](https://community.commonsware.com/c/cwac).
+
 Do not ask for help via social media.
 
 Release Notes
 -------------
+- v0.7.5: added `showRuleOfThirdsGrid()` to show [a "rule of thirds" grid overlay](https://github.com/commonsguy/cwac-cam2/issues/12) 
+- v0.7.4: [added timer option](https://github.com/commonsguy/cwac-cam2/issues/297) for taking pictures 
+- v0.7.3: fixed issues surrounding LG devices ([#295](https://github.com/commonsguy/cwac-cam2/issues/295), [#299](https://github.com/commonsguy/cwac-cam2/issues/299)) and 6.0 emulator ([#293](https://github.com/commonsguy/cwac-cam2/issues/293))
+- v0.7.2: [added `FileProvider` to `demo-playground`](https://github.com/commonsguy/cwac-cam2/issues/284), fixed compatibility issues ([#271](https://github.com/commonsguy/cwac-cam2/issues/271), [#274](https://github.com/commonsguy/cwac-cam2/issues/274), [#286](https://github.com/commonsguy/cwac-cam2/issues/286))
+- v0.7.1: fixed [Camera2 crash](https://github.com/commonsguy/cwac-cam2/issues/278) and [two](https://github.com/commonsguy/cwac-cam2/issues/33) old device [bugs](https://github.com/commonsguy/cwac-cam2/issues/32)
+- v0.7.0
+    - [Made runtime permission request opt-in](https://github.com/commonsguy/cwac-cam2/issues/233)
+    - Upgraded to greenrobot EventBus 3.0.0
+    - [Improved handling of rotation during video recording](https://github.com/commonsguy/cwac-cam2/issues/229)
+    - [Added zoom support for video recording](https://github.com/commonsguy/cwac-cam2/issues/235)
+    - More flexible constraint system for what features are used on what cameras, per [225](https://github.com/commonsguy/cwac-cam2/issues/225), [227](https://github.com/commonsguy/cwac-cam2/issues/227), [247](https://github.com/commonsguy/cwac-cam2/issues/247)
+    - `CountDownLatch` [bug fix](https://github.com/commonsguy/cwac-cam2/issues/244)
 - v0.6.9: fixed bug [in previous bug fix](https://github.com/commonsguy/cwac-cam2/issues/258), work around [destruction race condition](https://github.com/commonsguy/cwac-cam2/issues/257) 
 - v0.6.8: catch [`Camera` exceptions](https://github.com/commonsguy/cwac-cam2/issues/68), fixed [chronometer support](https://github.com/commonsguy/cwac-cam2/issues/255) 
 - v0.6.7: workaround for [Nexus 5X Android 7.0 bug](https://github.com/commonsguy/cwac-cam2/issues/184)

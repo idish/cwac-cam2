@@ -16,6 +16,11 @@
     android:dependency="file"
     android:title="@string/title_update_media_store"/>
   <SwitchPreference
+    android:key="useProvider"
+    android:dependency="file"
+    android:defaultValue="false"
+    android:title="@string/title_provider"/>
+  <SwitchPreference
     android:key="confirm"
     android:title="@string/title_confirm"/>
   <SwitchPreference
@@ -63,13 +68,19 @@
     android:title="@string/title_confirmation_quality"
     android:entries="@array/confirmationQuality"
     android:entryValues="@array/confirmationQuality"/>
-<!--
+  <ListPreference
+    android:key="timer"
+    android:entries="@array/timer_durations"
+    android:entryValues="@array/timer_duration_values"
+    android:title="@string/title_timer" />
   <SwitchPreference
-    android:key="allowSwitchFlashMode"
-    android:title="@string/title_allow_switch_flash_mode"/>
--->
+    android:key="requestPermissions"
+    android:title="@string/title_request_permissions"
+    android:defaultValue="true"/>
   <SwitchPreference
     android:key="useChooser"
     android:title="@string/title_use_chooser"/>
-
+  <SwitchPreference
+    android:key="showRuleOfThirds"
+    android:title="@string/title_rule_of_thirds"/>
 </PreferenceScreen>

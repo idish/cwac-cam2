@@ -20,21 +20,23 @@ configuration methods on `VideoRecorderActivity.IntentBuilder`, the correspondin
 extra names (defined as constants on `VideoRecorderActivity`), their default values,
 and what their behavior is:
 
-| `IntentBuilder` Method | Extra Key                 | Data Type                                 | Purpose |
-|:----------------------:|:-------------------------:|:-----------------------------------------:|---------|
-| `durationLimit()`      | `MediaStore.EXTRA_DURATION_LIMIT ` | `int`                            | Indicate the maximum length of the video in milliseconds |
-| `quality()`            | `MediaStore.EXTRA_VIDEO_QUALITY` | `VideoRecorderActivity.Quality`    | Indicate the quality, either `Quality.LOW` or `Quality.HIGH` (default=high) |
-| `sizeLimit()`          | `MediaStore.EXTRA_SIZE_LIMIT` | `int`                                 | Indicate the maximum size of the video in bytes |
-| `debug()`              | `EXTRA_DEBUG_ENABLED`     | `boolean`                                 | Indicate if extra debugging information should be dumped to LogCat (default is `false`) |
-| `facing()`             | `EXTRA_FACING`            | `AbstractCameraActivity.Facing`           | Indicate the preferred camera to start with (`BACK` or `FRONT`, default is `BACK`) |
-| `forceEngine()`        | `EXTRA_FORCE_ENGINE`             | `CameraEngine.ID`                         | Indicate a camera engine to use (`CLASSIC` or `CAMERA2`), default is determined by algorithm |
-| `to()`                 | `MediaStore.EXTRA_OUTPUT` | `File`                                    | Destination for picture to be written |
-| `updateMediaStore()`   | `EXTRA_UPDATE_MEDIA_STORE`| `boolean`                                 | Indicate if `MediaStore` should be notified about newly-captured photo (default is `false`)|
-| `mirrorPreview()`      | `EXTRA_MIRROR_PREVIEW`    | `boolean`                                 | Indicate if preview should be horizontally flipped (default is `false`)|
-| `focusMode()`          | `EXTRA_FOCUS_MODE`        | `AbstractCameraActivity.FocusMode`        | Indicate the desired focus mode for the camera (default is continuous if available, else device default) |
-| `onError()`            | `EXTRA_UNHANDLED_ERROR_RECEIVER` | `ResultReceiver`                   | Provide a IPC callback to be notified about errors inside Cam2 |
-| `chronoType()`         | `EXTRA_CHRONOTYPE`        | `ChronoType` | Whether there should be a timer shown on the video recording preview screen, and, if so, whether it counts down the remaining time on a time-limited recording or whether it counts up for how long the current recording is. |
-| `orientationLockMode()`| `EXTRA_ORIENTATION_LOCK_MODE`| `OrientationLockMode`                  | Locks the device orientation (`PORTRAIT` or `LANDSCAPE`) or allows for config changes (`DEFAULT`) |
+| `IntentBuilder` Method   | Extra Key                 | Data Type                                 | Purpose |
+|:------------------------:|:-------------------------:|:-----------------------------------------:|---------|
+| `chronoType()`           | `EXTRA_CHRONOTYPE`        | `ChronoType` | Whether there should be a timer shown on the video recording preview screen, and, if so, whether it counts down the remaining time on a time-limited recording or whether it counts up for how long the current recording is. |
+| `debug()`                | `EXTRA_DEBUG_ENABLED`     | `boolean`                                 | Indicate if extra debugging information should be dumped to LogCat (default is `false`) |
+| `durationLimit()`        | `MediaStore.EXTRA_DURATION_LIMIT ` | `int`                            | Indicate the maximum length of the video in milliseconds |
+| `facing()`               | `EXTRA_FACING`            | `AbstractCameraActivity.Facing`           | Indicate the preferred camera to start with (`BACK` or `FRONT`, default is `BACK`) |
+| `focusMode()`            | `EXTRA_FOCUS_MODE`        | `AbstractCameraActivity.FocusMode`        | Indicate the desired focus mode for the camera (default is continuous if available, else device default) |
+| `forceEngine()`          | `EXTRA_FORCE_ENGINE`             | `CameraEngine.ID`                         | Indicate a camera engine to use (`CLASSIC` or `CAMERA2`), default is determined by algorithm |
+| `mirrorPreview()`        | `EXTRA_MIRROR_PREVIEW`    | `boolean`                                 | Indicate if preview should be horizontally flipped (default is `false`)|
+| `onError()`              | `EXTRA_UNHANDLED_ERROR_RECEIVER` | `ResultReceiver`                   | Provide a IPC callback to be notified about errors inside Cam2 |
+| `orientationLockMode()`  | `EXTRA_ORIENTATION_LOCK_MODE`| `OrientationLockMode`                  | Locks the device orientation (`PORTRAIT` or `LANDSCAPE`) or allows for config changes (`DEFAULT`) |
+| `quality()`              | `MediaStore.EXTRA_VIDEO_QUALITY` | `VideoRecorderActivity.Quality`    | Indicate the quality, either `Quality.LOW` or `Quality.HIGH` (default=high) |
+| `requestPermissions()`   | `EXTRA_FAIL_IF_NO_PERMISSION`| none (extra takes a `boolean`)         | Indicates if the library should request runtime permissions if your app did not do so already |
+| `showRuleOfThirdsGrid()` | `EXTRA_SHOW_RULE_OF_THIRDS_GRID` | `boolean`                                 | Whether a "rule of thirds" grid should overlay the preview (default: `false`) |
+| `sizeLimit()`            | `MediaStore.EXTRA_SIZE_LIMIT` | `int`                                 | Indicate the maximum size of the video in bytes |
+| `to()`                   | `MediaStore.EXTRA_OUTPUT` | `File`                                    | Destination for picture to be written |
+| `updateMediaStore()`     | `EXTRA_UPDATE_MEDIA_STORE`| `boolean`                                 | Indicate if `MediaStore` should be notified about newly-captured photo (default is `false`)|
 
 Note that `to()` is **required**.
 

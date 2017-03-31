@@ -24,6 +24,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.ResultReceiver;
 import android.preference.PreferenceFragment;
+import android.support.v4.content.FileProvider;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -43,6 +44,9 @@ public class PictureFragment extends PreferenceFragment {
     void takePicture(Intent i);
     void setOutput(Uri uri);
   }
+
+  private static final String AUTHORITY=
+    BuildConfig.APPLICATION_ID+".provider";
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
@@ -125,8 +129,16 @@ public class PictureFragment extends PreferenceFragment {
       File f=new File(getActivity().getExternalFilesDir(null),
         "test.jpg");
 
-      b.to(f);
-      ((Contract)getActivity()).setOutput(Uri.fromFile(f));
+      if (prefs.getBoolean("useProvider", false)) {
+        Uri uri=FileProvider.getUriForFile(getActivity(), AUTHORITY, f);
+
+        b.to(uri);
+        ((Contract)getActivity()).setOutput(uri);
+      }
+      else {
+        b.to(f);
+        ((Contract)getActivity()).setOutput(Uri.fromFile(f));
+      }
     }
 
     if (prefs.getBoolean("mirrorPreview", false)) {
@@ -216,6 +228,12 @@ public class PictureFragment extends PreferenceFragment {
         break;
     }
 
+    int rawTimer=Integer.valueOf(prefs.getString("timer", "0"));
+
+    if (rawTimer>0) {
+      b.timer(rawTimer);
+    }
+
     String confirmationQuality=prefs.getString("confirmationQuality", null);
 
     if (confirmationQuality!=null &&
@@ -224,6 +242,14 @@ public class PictureFragment extends PreferenceFragment {
     }
 
     b.onError(new ErrorResultReceiver());
+
+    if (prefs.getBoolean("requestPermissions", true)) {
+      b.requestPermissions();
+    }
+
+    if (prefs.getBoolean("showRuleOfThirds", false)) {
+      b.showRuleOfThirdsGrid();
+    }
 
     Intent result;
 

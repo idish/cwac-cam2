@@ -24,6 +24,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.ResultReceiver;
 import android.preference.PreferenceFragment;
+import android.support.v4.content.FileProvider;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -34,9 +35,13 @@ import com.commonsware.cwac.cam2.Facing;
 import com.commonsware.cwac.cam2.FocusMode;
 import com.commonsware.cwac.cam2.OrientationLockMode;
 import com.commonsware.cwac.cam2.VideoRecorderActivity;
+import com.commonsware.cwac.cam2.ZoomStyle;
 import java.io.File;
 
 public class VideoFragment extends PreferenceFragment {
+  private static final String AUTHORITY=
+    BuildConfig.APPLICATION_ID+".provider";
+
   interface Contract {
     void takeVideo(Intent i);
     void setOutput(Uri uri);
@@ -86,7 +91,8 @@ public class VideoFragment extends PreferenceFragment {
     File f=new File(getActivity().getExternalFilesDir(null), "test.mp4");
 
     b.to(f);
-    ((Contract)getActivity()).setOutput(Uri.fromFile(f));
+    ((Contract)getActivity())
+      .setOutput(FileProvider.getUriForFile(getActivity(), AUTHORITY, f));
 
     if (prefs.getBoolean("highQuality", false)) {
       b.quality(AbstractCameraActivity.Quality.HIGH);
@@ -180,7 +186,28 @@ public class VideoFragment extends PreferenceFragment {
         break;
     }
 
+    int rawZoomStyle=
+      Integer.valueOf(prefs.getString("zoomStyle", "0"));
+
+    switch (rawZoomStyle) {
+      case 1:
+        b.zoomStyle(ZoomStyle.PINCH);
+        break;
+
+      case 2:
+        b.zoomStyle(ZoomStyle.SEEKBAR);
+        break;
+    }
+
     b.onError(new ErrorResultReceiver());
+
+    if (prefs.getBoolean("requestPermissions", true)) {
+      b.requestPermissions();
+    }
+
+    if (prefs.getBoolean("showRuleOfThirds", false)) {
+      b.showRuleOfThirdsGrid();
+    }
 
     Intent result;
 

@@ -15,6 +15,7 @@
 package com.commonsware.cwac.cam2.plugin;
 
 import android.annotation.TargetApi;
+import android.graphics.Point;
 import android.hardware.Camera;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
@@ -23,6 +24,7 @@ import android.media.ImageReader;
 import android.media.MediaRecorder;
 import android.os.Build;
 import com.commonsware.cwac.cam2.CameraConfigurator;
+import com.commonsware.cwac.cam2.CameraConstraints;
 import com.commonsware.cwac.cam2.CameraPlugin;
 import com.commonsware.cwac.cam2.CameraSession;
 import com.commonsware.cwac.cam2.CameraTwoConfigurator;
@@ -138,13 +140,10 @@ public class SizeAndFormatPlugin implements CameraPlugin {
     }
 
     private int getHigh() {
-      if ("LGE".equals(Build.MANUFACTURER) &&
-        "g3_tmo_us".equals(Build.PRODUCT)) {
-        return(CamcorderProfile.QUALITY_480P);
-      }
-      else if ("HUAWEI".equals(Build.MANUFACTURER) &&
-        "KIW-L24".equals(Build.PRODUCT)) {
-        return(CamcorderProfile.QUALITY_1080P);
+      CameraConstraints constraints=CameraConstraints.get();
+
+      if (constraints!=null) {
+        return(constraints.getHighCamcorderProfile());
       }
 
       return(CamcorderProfile.QUALITY_HIGH);

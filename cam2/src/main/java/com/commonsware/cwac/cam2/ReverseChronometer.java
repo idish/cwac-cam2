@@ -21,9 +21,14 @@ import android.util.AttributeSet;
 import android.widget.TextView;
 
 public class ReverseChronometer extends TextView implements Runnable {
+  interface Listener {
+    void onCountdownCompleted();
+  }
+
   private long startTime=0L;
   private long overallDuration=0L;
   private StringBuilder sb=new StringBuilder(8);
+  private Listener listener;
 
   public ReverseChronometer(Context context, AttributeSet attrs) {
     super(context, attrs);
@@ -44,6 +49,10 @@ public class ReverseChronometer extends TextView implements Runnable {
     }
     else {
       setText(DateUtils.formatElapsedTime(sb, 0));
+
+      if (listener!=null) {
+        listener.onCountdownCompleted();
+      }
     }
   }
 
@@ -58,5 +67,9 @@ public class ReverseChronometer extends TextView implements Runnable {
 
   public void setOverallDuration(long overallDuration) {
     this.overallDuration=overallDuration;
+  }
+
+  public void setListener(Listener listener) {
+    this.listener=listener;
   }
 }

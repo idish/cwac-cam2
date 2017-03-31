@@ -16,6 +16,7 @@ package com.commonsware.cwac.cam2;
 
 import com.commonsware.cwac.cam2.util.Size;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A representation of a camera. Specific camera engines will
@@ -29,13 +30,13 @@ public interface CameraDescriptor {
    * @return The possible preview sizes for the camera, in no
    * particular order
    */
-  ArrayList<Size> getPreviewSizes();
+  List<Size> getPreviewSizes();
 
   /**
    * @return The possible picture sizes for the camera, in no
    * particular order
    */
-  ArrayList<Size> getPictureSizes();
+  List<Size> getPictureSizes();
 
   /**
    * Indicates if the camera (and this library) supports a

@@ -13,6 +13,12 @@
     <com.commonsware.cwac.cam2.CameraView
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
+    <com.commonsware.cwac.cam2.RuleOfThirdsOverlay
+      android:id="@+id/rule_of_thirds"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:visibility="gone" />
   </FrameLayout>
 
   <ProgressBar

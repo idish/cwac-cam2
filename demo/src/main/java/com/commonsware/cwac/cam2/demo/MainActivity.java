@@ -38,6 +38,9 @@ import com.commonsware.cwac.cam2.ZoomStyle;
 import com.commonsware.cwac.security.RuntimePermissionUtils;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
@@ -48,7 +51,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-import de.greenrobot.event.EventBus;
 import static android.Manifest.permission.CAMERA;
 import static android.Manifest.permission.RECORD_AUDIO;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
@@ -280,6 +282,7 @@ public class MainActivity extends Activity {
     });
   }
 
+  @Subscribe(threadMode = ThreadMode.MAIN)
   public void onEventMainThread(InitCaptureCompletedEvent event) {
     Intent i;
 
@@ -313,6 +316,7 @@ public class MainActivity extends Activity {
     startActivityForResult(i, REQUEST_PORTRAIT_RFC);
   }
 
+  @Subscribe(threadMode = ThreadMode.MAIN)
   public void onEventMainThread(CompleteOutputCompletedEvent event) {
     findViewById(R.id.progress).setVisibility(View.GONE);
     findViewById(R.id.results).setVisibility(View.VISIBLE);

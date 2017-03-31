@@ -1,15 +1,20 @@
 /***
- Copyright (c) 2015 CommonsWare, LLC
-
- Licensed under the Apache License, Version 2.0 (the "License"); you may
- not use this file except in compliance with the License. You may obtain
- a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
+ * Copyright (c) 2015 CommonsWare, LLC
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may
+ * not use this file except in compliance with the License. You may
+ * obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing,
+ * software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.
+ * See the License for the specific language governing permissions
+ * and
+ * limitations under the License.
  */
 
 package com.commonsware.cwac.cam2;
@@ -27,12 +32,13 @@ import com.commonsware.cwac.cam2.plugin.OrientationPlugin;
 import com.commonsware.cwac.cam2.plugin.SizeAndFormatPlugin;
 import com.commonsware.cwac.cam2.util.Size;
 import com.commonsware.cwac.cam2.util.Utils;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Queue;
-import de.greenrobot.event.EventBus;
 
 /**
  * Controller for camera-related functions, designed to be used
@@ -45,7 +51,7 @@ public class CameraController implements CameraView.StateCallback {
   private List<CameraDescriptor> cameras=null;
   private int currentCamera=0;
   private final HashMap<CameraDescriptor, CameraView> previews=
-      new HashMap<CameraDescriptor, CameraView>();
+    new HashMap<CameraDescriptor, CameraView>();
   private Queue<CameraView> availablePreviews=null;
   private boolean switchPending=false;
   private boolean isVideoRecording=false;
@@ -72,7 +78,7 @@ public class CameraController implements CameraView.StateCallback {
    * the camera(s) on the device
    */
   public CameraEngine getEngine() {
-    return(engine);
+    return (engine);
   }
 
   /**
@@ -83,16 +89,17 @@ public class CameraController implements CameraView.StateCallback {
    * @param engine the engine to be used by this fragment to access
    * the camera(s) on the device
    */
-  public void setEngine(CameraEngine engine, CameraSelectionCriteria criteria) {
+  public void setEngine(CameraEngine engine,
+                        CameraSelectionCriteria criteria) {
     this.engine=engine;
 
-    EventBus.getDefault().register(this);
+    AbstractCameraActivity.BUS.register(this);
 
     engine.loadCameraDescriptors(criteria);
   }
 
   public int getNumberOfCameras() {
-    return(cameras==null ? 0 : cameras.size());
+    return (cameras==null ? 0 : cameras.size());
   }
 
   /**
@@ -136,8 +143,9 @@ public class CameraController implements CameraView.StateCallback {
    * be created if you want to use the camera again in the future.
    */
   public void destroy() {
-    EventBus.getDefault().post(new ControllerDestroyedEvent(this));
-    EventBus.getDefault().unregister(this);
+    AbstractCameraActivity.BUS.post(
+      new ControllerDestroyedEvent(this));
+    AbstractCameraActivity.BUS.unregister(this);
   }
 
   /**
@@ -148,7 +156,8 @@ public class CameraController implements CameraView.StateCallback {
    */
   public void switchCamera() throws Exception {
     if (session!=null) {
-      getPreview(session.getDescriptor()).setVisibility(View.INVISIBLE);
+      getPreview(session.getDescriptor()).setVisibility(
+        View.INVISIBLE);
       switchPending=true;
       stop();
     }
@@ -233,21 +242,21 @@ public class CameraController implements CameraView.StateCallback {
   }
 
   public boolean canToggleFlashMode() {
-    return(allowChangeFlashMode &&
+    return (allowChangeFlashMode &&
       engine.supportsDynamicFlashModes() &&
       engine.hasMoreThanOneEligibleFlashMode());
   }
 
   public FlashMode getCurrentFlashMode() {
-    return(session.getCurrentFlashMode());
+    return (session.getCurrentFlashMode());
   }
 
   public boolean supportsZoom() {
-    return(engine.supportsZoom(session));
+    return (engine.supportsZoom(session));
   }
 
   public int getCurrentCamera() {
-    return(currentCamera);
+    return (currentCamera);
   }
 
   public void setCurrentCamera(int currentCamera) {
@@ -257,13 +266,13 @@ public class CameraController implements CameraView.StateCallback {
   public boolean changeZoom(int delta) {
     zoomLevel+=delta;
 
-    return(handleZoom());
+    return (handleZoom());
   }
 
   public boolean setZoom(int zoomLevel) {
     this.zoomLevel=zoomLevel;
 
-    return(handleZoom());
+    return (handleZoom());
   }
 
   private boolean handleZoom() {
@@ -274,7 +283,7 @@ public class CameraController implements CameraView.StateCallback {
       zoomLevel=100;
     }
 
-    return(engine.zoomTo(session, zoomLevel));
+    return (engine.zoomTo(session, zoomLevel));
   }
 
   private CameraView getPreview(CameraDescriptor camera) {
@@ -285,7 +294,7 @@ public class CameraController implements CameraView.StateCallback {
       previews.put(camera, result);
     }
 
-    return(result);
+    return (result);
   }
 
   private int getNextCameraIndex() {
@@ -295,7 +304,7 @@ public class CameraController implements CameraView.StateCallback {
       next=0;
     }
 
-    return(next);
+    return (next);
   }
 
   private void open() {
@@ -312,29 +321,31 @@ public class CameraController implements CameraView.StateCallback {
         pictureSize=Utils.getSmallestPictureSize(camera);
       }
 
-      if (camera != null && cv.getWidth() > 0 && cv.getHeight() > 0) {
+      if (camera!=null && cv.getWidth()>0 && cv.getHeight()>0) {
         previewSize=Utils.chooseOptimalSize(camera.getPreviewSizes(),
-            cv.getWidth(), cv.getHeight(), pictureSize);
+          cv.getWidth(), cv.getHeight(), pictureSize);
       }
 
       SurfaceTexture texture=cv.getSurfaceTexture();
 
-      if (previewSize != null && texture != null) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+      if (previewSize!=null && texture!=null) {
+        if (Build.VERSION.SDK_INT>=
+          Build.VERSION_CODES.JELLY_BEAN_MR1) {
           texture.setDefaultBufferSize(previewSize.getWidth(),
-              previewSize.getHeight());
+            previewSize.getHeight());
         }
 
         flashModePlugin=new FlashModePlugin();
 
         session=engine
-            .buildSession(cv.getContext(), camera)
-            .addPlugin(new SizeAndFormatPlugin(previewSize,
-              pictureSize, ImageFormat.JPEG))
-            .addPlugin(new OrientationPlugin(cv.getContext()))
-            .addPlugin(new FocusModePlugin(cv.getContext(), focusMode, isVideo))
-            .addPlugin(flashModePlugin)
-            .build();
+          .buildSession(cv.getContext(), camera)
+          .addPlugin(new SizeAndFormatPlugin(previewSize,
+            pictureSize, ImageFormat.JPEG))
+          .addPlugin(new OrientationPlugin(cv.getContext()))
+          .addPlugin(
+            new FocusModePlugin(cv.getContext(), focusMode, isVideo))
+          .addPlugin(flashModePlugin)
+          .build();
 
         session.setPreviewSize(previewSize);
         engine.open(session, texture);
@@ -343,21 +354,25 @@ public class CameraController implements CameraView.StateCallback {
   }
 
   @SuppressWarnings("unused")
-  public void onEventMainThread(CameraEngine.CameraDescriptorsEvent event) {
+  @Subscribe(threadMode=ThreadMode.MAIN)
+  public void onEventMainThread(
+    CameraEngine.CameraDescriptorsEvent event) {
     if (event.exception!=null) {
       postError(ErrorConstants.ERROR_LIST_CAMERAS, event.exception);
     }
 
     if (event.descriptors.size()>0) {
       cameras=event.descriptors;
-      EventBus.getDefault().post(new ControllerReadyEvent(this, cameras.size()));
+      AbstractCameraActivity.BUS.post(
+        new ControllerReadyEvent(this, cameras.size()));
     }
     else {
-      EventBus.getDefault().post(new NoSuchCameraEvent());
+      AbstractCameraActivity.BUS.post(new NoSuchCameraEvent());
     }
   }
 
   @SuppressWarnings("unused")
+  @Subscribe(threadMode=ThreadMode.MAIN)
   public void onEventMainThread(CameraEngine.OpenedEvent event) {
     if (event.exception!=null) {
       // handled at fragment level
@@ -387,10 +402,11 @@ public class CameraController implements CameraView.StateCallback {
   }
 
   @SuppressWarnings("unused")
+  @Subscribe(threadMode=ThreadMode.MAIN)
   public void onEventMainThread(CameraEngine.ClosedEvent event) {
     if (event.exception!=null) {
       postError(ErrorConstants.ERROR_CLOSE_CAMERA, event.exception);
-      EventBus.getDefault().post(new NoSuchCameraEvent());
+      AbstractCameraActivity.BUS.post(new NoSuchCameraEvent());
     }
     else {
       if (switchPending) {
@@ -404,13 +420,16 @@ public class CameraController implements CameraView.StateCallback {
   }
 
   @SuppressWarnings("unused")
-  public void onEventMainThread(CameraEngine.OrientationChangedEvent event) {
+  @Subscribe(threadMode=ThreadMode.MAIN)
+  public void onEventMainThread(
+    CameraEngine.OrientationChangedEvent event) {
     if (engine!=null) {
       engine.handleOrientationChange(session, event);
     }
   }
 
   @SuppressWarnings("unused")
+  @Subscribe(threadMode=ThreadMode.MAIN)
   public void onEventMainThread(CameraEngine.DeepImpactEvent event) {
     postError(ErrorConstants.ERROR_MISC, event.exception);
   }
@@ -448,17 +467,18 @@ public class CameraController implements CameraView.StateCallback {
     final private int cameraCount;
     final private CameraController ctlr;
 
-    private ControllerReadyEvent(CameraController ctlr, int cameraCount) {
+    private ControllerReadyEvent(CameraController ctlr,
+                                 int cameraCount) {
       this.cameraCount=cameraCount;
       this.ctlr=ctlr;
     }
 
     public int getNumberOfCameras() {
-      return(cameraCount);
+      return (cameraCount);
     }
 
     public boolean isEventForController(CameraController ctlr) {
-      return(this.ctlr==ctlr);
+      return (this.ctlr==ctlr);
     }
   }
 
@@ -476,7 +496,7 @@ public class CameraController implements CameraView.StateCallback {
     }
 
     public CameraController getDestroyedController() {
-      return(ctlr);
+      return (ctlr);
     }
   }
 }

@@ -40,6 +40,11 @@
     android:entryValues="@array/focusModeValues"
     android:title="@string/title_focus_mode" />
   <ListPreference
+    android:key="zoomStyle"
+    android:title="@string/title_zoom_style"
+    android:entries="@array/zoomStyles"
+    android:entryValues="@array/zoomStyleValues"/>
+  <ListPreference
     android:key="olockMode"
     android:title="@string/title_olock"
     android:entries="@array/olockTypes"
@@ -52,5 +57,12 @@
     android:entries="@array/chronoTypes"
     android:entryValues="@array/chronoValues"
     android:title="@string/title_chrono_type" />
+  <SwitchPreference
+    android:key="requestPermissions"
+    android:title="@string/title_request_permissions"
+    android:defaultValue="true"/>
+  <SwitchPreference
+    android:key="showRuleOfThirds"
+    android:title="@string/title_rule_of_thirds"/>
 
 </PreferenceScreen>

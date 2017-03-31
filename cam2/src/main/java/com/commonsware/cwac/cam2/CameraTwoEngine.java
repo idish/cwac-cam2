@@ -39,16 +39,15 @@ import android.os.HandlerThread;
 import android.util.Log;
 import android.view.Surface;
 import com.commonsware.cwac.cam2.util.Size;
+import org.greenrobot.eventbus.EventBus;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
-import de.greenrobot.event.EventBus;
 
 /**
  * Implementation of a CameraEngine that supports the
@@ -63,7 +62,7 @@ public class CameraTwoEngine extends CameraEngine {
       android.os.Process.THREAD_PRIORITY_BACKGROUND);
   final private Handler handler;
   final private Semaphore lock=new Semaphore(1);
-  private CountDownLatch closeLatch=null;
+//  private CountDownLatch closeLatch=null;
   private MediaActionSound shutter=new MediaActionSound();
   private List<Descriptor> descriptors=null;
 
@@ -109,22 +108,56 @@ public class CameraTwoEngine extends CameraEngine {
                 CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
               android.util.Size[] rawSizes=
                 map.getOutputSizes(SurfaceTexture.class);
-              ArrayList<Size> sizes=new ArrayList<Size>();
+              CameraConstraints constraint=CameraConstraints.get();
 
-              for (android.util.Size size : rawSizes) {
-                if (size.getWidth()<2160 &&
-                  size.getHeight()<2160) {
-                  sizes.add(
-                    new Size(size.getWidth(), size.getHeight()));
+              camera.setFacingFront(
+                cc.get(CameraCharacteristics.LENS_FACING)==
+                  CameraCharacteristics.LENS_FACING_FRONT);
+
+              List<Size> sizes=null;
+
+              if (constraint!=null) {
+                if (camera.isFacingFront) {
+                  sizes=constraint.getPreviewFFCSizeWhitelist();
+                }
+                else {
+                  sizes=constraint.getPreviewRFCSizeWhitelist();
+                }
+              }
+
+              if (sizes==null) {
+                sizes=new ArrayList<Size>();
+
+                for (android.util.Size size : rawSizes) {
+                  if (size.getWidth()<2160 &&
+                    size.getHeight()<2160) {
+                    sizes.add(
+                      new Size(size.getWidth(), size.getHeight()));
+                  }
                 }
               }
 
               camera.setPreviewSizes(sizes);
-              camera.setPictureSizes(Arrays.asList(
-                map.getOutputSizes(ImageFormat.JPEG)));
-              camera.setFacingFront(
-                cc.get(CameraCharacteristics.LENS_FACING)==
-                  CameraCharacteristics.LENS_FACING_FRONT);
+              sizes=null;
+
+              if (constraint!=null) {
+                if (camera.isFacingFront) {
+                  sizes=constraint.getPictureFFCSizeWhitelist();
+                }
+                else {
+                  sizes=constraint.getPictureRFCSizeWhitelist();
+                }
+              }
+
+              if (sizes==null) {
+                sizes=new ArrayList<>();
+
+                for (android.util.Size size : map.getOutputSizes(ImageFormat.JPEG)) {
+                  sizes.add(new Size(size.getWidth(), size.getHeight()));
+                }
+              }
+
+              camera.setPictureSizes(sizes);
               result.add(camera);
             }
 
@@ -243,9 +276,9 @@ public class CameraTwoEngine extends CameraEngine {
       lock.acquire();
 
       if (s.captureSession != null) {
-        closeLatch=new CountDownLatch(1);
+        // closeLatch=new CountDownLatch(1);
         s.captureSession.close();
-        closeLatch.await(2, TimeUnit.SECONDS);
+        // closeLatch.await(2, TimeUnit.SECONDS);
         s.captureSession=null;
       }
 
@@ -453,9 +486,11 @@ public class CameraTwoEngine extends CameraEngine {
     public void onClosed(CameraDevice camera) {
       super.onClosed(camera);
 
+/*
       if (closeLatch != null) {
         closeLatch.countDown();
       }
+*/
     }
   }
 
@@ -676,9 +711,15 @@ public class CameraTwoEngine extends CameraEngine {
               CameraMetadata.CONTROL_AF_TRIGGER_CANCEL);
           s.previewRequestBuilder.set(CaptureRequest.CONTROL_AE_MODE,
               CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH);
-          s.captureSession.capture(s.previewRequestBuilder.build(), null,
+
+          CameraCaptureSession session=s.captureSession;
+
+          if (session!=null) {
+            session.capture(s.previewRequestBuilder.build(), null,
               handler);
-          s.captureSession.setRepeatingRequest(s.previewRequest, null, handler);
+            session.setRepeatingRequest(s.previewRequest, null,
+              handler);
+          }
         }
       }
       catch (CameraAccessException e) {
@@ -711,8 +752,8 @@ public class CameraTwoEngine extends CameraEngine {
   static class Descriptor implements CameraDescriptor {
     private final String cameraId;
     private CameraDevice device;
-    private ArrayList<Size> pictureSizes;
-    private ArrayList<Size> previewSizes;
+    private List<Size> pictureSizes;
+    private List<Size> previewSizes;
     private boolean isFacingFront;
     private final Integer facing;
 
@@ -739,25 +780,21 @@ public class CameraTwoEngine extends CameraEngine {
     }
 
     @Override
-    public ArrayList<Size> getPreviewSizes() {
+    public List<Size> getPreviewSizes() {
       return(previewSizes);
     }
 
-    private void setPreviewSizes(ArrayList<Size> sizes) {
+    private void setPreviewSizes(List<Size> sizes) {
       previewSizes=sizes;
     }
 
     @Override
-    public ArrayList<Size> getPictureSizes() {
+    public List<Size> getPictureSizes() {
       return(pictureSizes);
     }
 
-    private void setPictureSizes(List<android.util.Size> sizes) {
-      pictureSizes=new ArrayList<Size>(sizes.size());
-
-      for (android.util.Size size : sizes) {
-        pictureSizes.add(new Size(size.getWidth(), size.getHeight()));
-      }
+    private void setPictureSizes(List<Size> sizes) {
+      pictureSizes=sizes;
     }
 
     private void setFacingFront(boolean isFacingFront) {

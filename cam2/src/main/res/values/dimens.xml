@@ -7,4 +7,5 @@
   <dimen name="cwac_cam2_fragment_panel_item_width">96dp</dimen>
   <dimen name="cwac_cam2_fragment_panel_item_height">48dp</dimen>
   <dimen name="cwac_cam2_fragment_chrono_margin">16dp</dimen>
+  <dimen name="cwac_cam2_gridline_width">1dp</dimen>
 </resources>

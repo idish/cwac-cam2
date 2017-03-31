@@ -24,7 +24,6 @@ import com.android.mms.exif.ExifInterface;
 import com.android.mms.exif.ExifTag;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import de.greenrobot.event.EventBus;
 
 /**
  * Represents a picture taken by the camera, to be passed through
@@ -114,15 +113,13 @@ public class ImageContext {
             return(jpegOriginal);
           }
           catch (OutOfMemoryError e) {
-            EventBus
-              .getDefault()
+            AbstractCameraActivity.BUS
               .post(new CameraEngine.DeepImpactEvent(e));
           }
         }
       }
       catch (Exception e) {
-        EventBus
-          .getDefault()
+        AbstractCameraActivity.BUS
           .post(new CameraEngine.DeepImpactEvent(e));
       }
     }
@@ -206,7 +203,7 @@ public class ImageContext {
 
     try {
       result=
-        BitmapFactory.decodeByteArray(jpegOriginal, 0, jpegOriginal.length, opts);
+         BitmapFactory.decodeByteArray(jpegOriginal, 0, jpegOriginal.length, opts);
 
       if (limit>0 && result.getByteCount()>limit) {
         return(createBitmap(inSampleSize+1, inBitmap,
@@ -228,7 +225,7 @@ public class ImageContext {
       }
     }
     catch (IOException e) {
-      EventBus.getDefault().post(
+      AbstractCameraActivity.BUS.post(
         new CameraEngine.DeepImpactEvent(e));
     }
 

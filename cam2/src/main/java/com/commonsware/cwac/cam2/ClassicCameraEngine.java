@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import de.greenrobot.event.EventBus;
 
 /**
  * Implementation of a CameraEngine that supports the
@@ -74,29 +73,69 @@ public class ClassicCameraEngine extends CameraEngine
 
             for (int cameraId=0; cameraId<count; cameraId++) {
               Camera.getCameraInfo(cameraId, info);
+              CameraConstraints constraint=CameraConstraints.get();
+
+              if (constraint!=null) {
+                if (!constraint.supportsFFC() && info.facing==
+                  Camera.CameraInfo.CAMERA_FACING_FRONT) {
+                  break;
+                }
+
+                if (!constraint.supportsRFC() && info.facing==
+                  Camera.CameraInfo.CAMERA_FACING_BACK) {
+                  break;
+                }
+              }
+
               Descriptor descriptor=new Descriptor(cameraId, info);
 
               Camera camera=Camera.open(descriptor.getCameraId());
               Camera.Parameters params=camera.getParameters();
 
               if (params!=null) {
-                ArrayList<Size> sizes=new ArrayList<Size>();
+                List<Size> sizes=null;
 
-                for (Camera.Size size : params.getSupportedPreviewSizes()) {
-                  if (size.height<2160 && size.width<2160) {
-                    sizes.add(new Size(size.width, size.height));
+                if (constraint!=null) {
+                  if (info.facing==Camera.CameraInfo.CAMERA_FACING_FRONT) {
+                    sizes=constraint.getPreviewFFCSizeWhitelist();
+                  }
+                  else {
+                    sizes=constraint.getPreviewRFCSizeWhitelist();
+                  }
+                }
+
+                if (sizes==null) {
+                  sizes=new ArrayList<>();
+
+                  for (Camera.Size size : params.getSupportedPreviewSizes()) {
+                    if (size.height<2160 && size.width<2160) {
+                      sizes.add(new Size(size.width, size.height));
+//  Log.e("20161211", String.format("%d %d x %d", info.facing, size.width, size.height));
+                    }
                   }
                 }
 
                 descriptor.setPreviewSizes(sizes);
+                sizes=null;
 
-                sizes=new ArrayList<Size>();
+                if (constraint!=null) {
+                  if (info.facing==Camera.CameraInfo.CAMERA_FACING_FRONT) {
+                    sizes=constraint.getPictureFFCSizeWhitelist();
+                  }
+                  else {
+                    sizes=constraint.getPictureRFCSizeWhitelist();
+                  }
+                }
 
-                for (Camera.Size size : params.getSupportedPictureSizes()) {
-                  if (!"samsung".equals(Build.MANUFACTURER) ||
-                    !"jflteuc".equals(Build.PRODUCT) ||
-                    size.width<2048) {
-                    sizes.add(new Size(size.width, size.height));
+                if (sizes==null) {
+                  sizes=new ArrayList<>();
+
+                  for (Camera.Size size : params.getSupportedPictureSizes()) {
+                    if (!"samsung".equals(Build.MANUFACTURER) ||
+                      !"jflteuc".equals(Build.PRODUCT) ||
+                      size.width<2048) {
+                      sizes.add(new Size(size.width, size.height));
+                    }
                   }
                 }
 
@@ -461,7 +500,7 @@ public class ClassicCameraEngine extends CameraEngine
   public void onZoomChange(int zoomValue, boolean stopped,
                            Camera camera) {
     if (stopped) {
-      EventBus.getDefault().post(new SmoothZoomCompletedEvent());
+      AbstractCameraActivity.BUS.post(new SmoothZoomCompletedEvent());
     }
   }
 
@@ -490,8 +529,8 @@ public class ClassicCameraEngine extends CameraEngine
   static class Descriptor implements CameraDescriptor {
     private int cameraId;
     private Camera camera;
-    private ArrayList<Size> pictureSizes;
-    private ArrayList<Size> previewSizes;
+    private List<Size> pictureSizes;
+    private List<Size> previewSizes;
     private final int facing;
 
     private Descriptor(int cameraId, Camera.CameraInfo info) {
@@ -512,16 +551,16 @@ public class ClassicCameraEngine extends CameraEngine
     }
 
     @Override
-    public ArrayList<Size> getPreviewSizes() {
+    public List<Size> getPreviewSizes() {
       return (previewSizes);
     }
 
-    private void setPreviewSizes(ArrayList<Size> sizes) {
+    private void setPreviewSizes(List<Size> sizes) {
       previewSizes=sizes;
     }
 
     @Override
-    public ArrayList<Size> getPictureSizes() {
+    public List<Size> getPictureSizes() {
       return (pictureSizes);
     }
 
@@ -530,7 +569,7 @@ public class ClassicCameraEngine extends CameraEngine
       return (ImageFormat.JPEG == format);
     }
 
-    private void setPictureSizes(ArrayList<Size> sizes) {
+    private void setPictureSizes(List<Size> sizes) {
       pictureSizes=sizes;
     }
 

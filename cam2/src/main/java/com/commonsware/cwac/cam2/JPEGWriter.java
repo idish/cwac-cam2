@@ -15,19 +15,11 @@
 package com.commonsware.cwac.cam2;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
-import com.android.mms.exif.ExifInterface;
-import com.android.mms.exif.ExifTag;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
-import de.greenrobot.event.EventBus;
 
 /**
  * ImageProcessor that writes a JPEG file out to some form
@@ -116,7 +108,7 @@ public class JPEGWriter extends AbstractImageProcessor {
       }
       catch (Exception e) {
         // throw new UnsupportedOperationException("Exception when trying to write JPEG", e);
-        EventBus.getDefault().post(new CameraEngine.DeepImpactEvent(e));
+        AbstractCameraActivity.BUS.post(new CameraEngine.DeepImpactEvent(e));
       }
     }
   }

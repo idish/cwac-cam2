@@ -20,24 +20,30 @@ import android.app.Activity;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import com.commonsware.cwac.cam2.util.Utils;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import de.greenrobot.event.EventBus;
+import static android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+import static android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+import static android.content.pm.ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE;
+import static android.content.pm.ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT;
+import static android.content.pm.ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
 
 /**
  * Base class for activities that integrate with CameraFragment
@@ -145,7 +151,23 @@ abstract public class AbstractCameraActivity extends Activity {
    * Default is NONE.
    */
   public static final String EXTRA_ZOOM_STYLE=
-          "cwac_cam2_zoom_style";
+    "cwac_cam2_zoom_style";
+
+  /**
+   * Extra name for runtime permission policy. If true, we check
+   * for runtime permissions and fail fast if they are not already
+   * granted. If false, if we lack runtime permissions (and need them
+   * based on API level), we request them ourselves. Defaults to true.
+   */
+  public static final String EXTRA_FAIL_IF_NO_PERMISSION=
+    "cwac_cam2_fail_if_no_permission";
+
+  /**
+   * Extra name for whether the camera should show a "rule of thirds"
+   * overlay above the camera preview. Defaults to false.
+   */
+  public static final String EXTRA_SHOW_RULE_OF_THIRDS_GRID=
+    "cwac_cam2_show_rule_of_thirds_grid";
 
   /**
    * @return true if the activity wants FEATURE_ACTION_BAR_OVERLAY,
@@ -187,6 +209,7 @@ abstract public class AbstractCameraActivity extends Activity {
   protected static final String TAG_CAMERA=CameraFragment.class.getCanonicalName();
   private static final int REQUEST_PERMS=13401;
   protected CameraFragment cameraFrag;
+  public static final EventBus BUS=new EventBus();
 
   /**
    * Standard lifecycle method, serving as the main entry
@@ -199,7 +222,7 @@ abstract public class AbstractCameraActivity extends Activity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
-    Utils.validateEnvironment(this);
+    Utils.validateEnvironment(this, failIfNoPermissions());
 
     OrientationLockMode olockMode=
       (OrientationLockMode)getIntent().getSerializableExtra(EXTRA_ORIENTATION_LOCK_MODE);
@@ -244,8 +267,11 @@ abstract public class AbstractCameraActivity extends Activity {
       if (perms.length==0) {
         init();
       }
-      else {
+      else if (!failIfNoPermissions()) {
         requestPermissions(perms, REQUEST_PERMS);
+      }
+      else {
+        throw new IllegalStateException("We lack the necessary permissions!");
       }
     }
     else {
@@ -276,7 +302,7 @@ abstract public class AbstractCameraActivity extends Activity {
   public void onStart() {
     super.onStart();
 
-    EventBus.getDefault().register(this);
+    BUS.register(this);
   }
 
   /**
@@ -285,7 +311,7 @@ abstract public class AbstractCameraActivity extends Activity {
    */
   @Override
   public void onStop() {
-    EventBus.getDefault().unregister(this);
+    BUS.unregister(this);
 
     if (cameraFrag!=null){
       if (isChangingConfigurations()) {
@@ -311,21 +337,25 @@ abstract public class AbstractCameraActivity extends Activity {
   }
 
   @SuppressWarnings("unused")
+  @Subscribe(threadMode =ThreadMode.MAIN)
   public void onEventMainThread(CameraController.NoSuchCameraEvent event) {
     finish();
   }
 
   @SuppressWarnings("unused")
+  @Subscribe(threadMode =ThreadMode.MAIN)
   public void onEventMainThread(CameraController.ControllerDestroyedEvent event) {
     finish();
   }
 
   @SuppressWarnings("unused")
+  @Subscribe(threadMode =ThreadMode.MAIN)
   public void onEventMainThread(CameraEngine.CameraTwoGenericEvent event) {
     finish();
   }
 
   @SuppressWarnings("unused")
+  @Subscribe(threadMode =ThreadMode.MAIN)
   public void onEventMainThread(CameraEngine.DeepImpactEvent event) {
     finish();
   }
@@ -409,13 +439,24 @@ abstract public class AbstractCameraActivity extends Activity {
 
   protected void lockOrientation(OrientationLockMode mode) {
     if (mode==null || mode==OrientationLockMode.DEFAULT) {
-      setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+      int orientation=getResources().getConfiguration().orientation;
+
+      if (orientation==Configuration.ORIENTATION_LANDSCAPE){
+        setRequestedOrientation(SCREEN_ORIENTATION_LANDSCAPE);
+      }
+      else if (orientation==Configuration.ORIENTATION_PORTRAIT){
+        setRequestedOrientation(SCREEN_ORIENTATION_PORTRAIT);
+      }
+      else {
+        setRequestedOrientation(SCREEN_ORIENTATION_UNSPECIFIED);
+      }
     }
     else if (mode==OrientationLockMode.LANDSCAPE) {
-      setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+      setRequestedOrientation(SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
     }
     else {
-      setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
+      setRequestedOrientation(
+          SCREEN_ORIENTATION_SENSOR_PORTRAIT);
     }
   }
 
@@ -430,6 +471,10 @@ abstract public class AbstractCameraActivity extends Activity {
 
   private boolean useRuntimePermissions() {
     return(Build.VERSION.SDK_INT>Build.VERSION_CODES.LOLLIPOP_MR1);
+  }
+
+  private boolean failIfNoPermissions() {
+    return(getIntent().getBooleanExtra(EXTRA_FAIL_IF_NO_PERMISSION, true));
   }
 
   private String[] netPermissions(String[] wanted) {
@@ -462,6 +507,7 @@ abstract public class AbstractCameraActivity extends Activity {
     abstract public Intent buildChooserBaseIntent();
 
     protected final Intent result;
+    private final Context ctxt;
 
     /**
      * Standard constructor. May throw a runtime exception
@@ -471,7 +517,7 @@ abstract public class AbstractCameraActivity extends Activity {
      * @param ctxt any Context will do
      */
     public IntentBuilder(Context ctxt, Class clazz) {
-      Utils.validateEnvironment(ctxt);
+      this.ctxt=ctxt.getApplicationContext();
       result=new Intent(ctxt, clazz);
     }
 
@@ -481,6 +527,9 @@ abstract public class AbstractCameraActivity extends Activity {
      * @return the Intent to use to start the activity
      */
     public Intent build() {
+      Utils.validateEnvironment(ctxt,
+        result.getBooleanExtra(EXTRA_FAIL_IF_NO_PERMISSION, true));
+
       return(result);
     }
 
@@ -725,6 +774,7 @@ abstract public class AbstractCameraActivity extends Activity {
 
       return((T)this);
     }
+
     /**
      * Call to configure the ZoomStyle to be used. Default
      * is NONE.
@@ -733,6 +783,30 @@ abstract public class AbstractCameraActivity extends Activity {
      */
     public T zoomStyle(ZoomStyle zoomStyle) {
       result.putExtra(EXTRA_ZOOM_STYLE, zoomStyle);
+
+      return((T)this);
+    }
+
+    /**
+     * Call to request that the library request permissions from the
+     * user, rather than that being handled by the app.
+     *
+     * @return the builder, for further configuration
+     */
+    public T requestPermissions() {
+      result.putExtra(EXTRA_FAIL_IF_NO_PERMISSION, false);
+
+      return((T)this);
+    }
+
+    /**
+     * Call to request that we show a "rule of thirds" grid over the camera
+     * preview.
+     *
+     * @return the builder, for further configuration
+     */
+    public T showRuleOfThirdsGrid() {
+      result.putExtra(EXTRA_SHOW_RULE_OF_THIRDS_GRID, true);
 
       return((T)this);
     }

@@ -19,6 +19,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.provider.MediaStore;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 /**
  * Activity for recording video. Analogue of CameraActivity.
@@ -76,10 +78,12 @@ public class VideoRecorderActivity extends AbstractCameraActivity {
         getIntent().getIntExtra(MediaStore.EXTRA_DURATION_LIMIT, 0),
         (ZoomStyle)getIntent().getSerializableExtra(EXTRA_ZOOM_STYLE),
         getIntent().getBooleanExtra(EXTRA_FACING_EXACT_MATCH, false),
-        (ChronoType)getIntent().getSerializableExtra(EXTRA_CHRONOTYPE)));
+        (ChronoType)getIntent().getSerializableExtra(EXTRA_CHRONOTYPE),
+        getIntent().getBooleanExtra(EXTRA_SHOW_RULE_OF_THIRDS_GRID, false)));
   }
 
   @SuppressWarnings("unused")
+  @Subscribe(threadMode = ThreadMode.MAIN)
   public void onEventMainThread(CameraEngine.VideoTakenEvent event) {
     if (event.getVideoTransaction()==null) {
       setResult(RESULT_CANCELED);
