@@ -140,6 +140,14 @@ abstract public class AbstractCameraActivity extends Activity {
     "cwac_cam2_olock_mode";
 
   /**
+   * Extra name for whether the camera should allow zoom and
+   * how. Value should be a ZoomStyle (NONE, PINCH, SEEKBAR).
+   * Default is NONE.
+   */
+  public static final String EXTRA_ZOOM_STYLE=
+          "cwac_cam2_zoom_style";
+
+  /**
    * @return true if the activity wants FEATURE_ACTION_BAR_OVERLAY,
    * false otherwise
    */
@@ -714,6 +722,17 @@ abstract public class AbstractCameraActivity extends Activity {
      */
     public T orientationLockMode(OrientationLockMode mode) {
       result.putExtra(EXTRA_ORIENTATION_LOCK_MODE, mode);
+
+      return((T)this);
+    }
+    /**
+     * Call to configure the ZoomStyle to be used. Default
+     * is NONE.
+     *
+     * @return the builder, for further configuration
+     */
+    public T zoomStyle(ZoomStyle zoomStyle) {
+      result.putExtra(EXTRA_ZOOM_STYLE, zoomStyle);
 
       return((T)this);
     }

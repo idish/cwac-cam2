@@ -34,6 +34,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.OvershootInterpolator;
 import android.widget.Chronometer;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import com.github.clans.fab.FloatingActionButton;
@@ -47,22 +48,24 @@ import de.greenrobot.event.EventBus;
  * you (or the user) to take a picture.
  */
 public class CameraFragment extends Fragment {
-  private static final String ARG_OUTPUT="output";
-  private static final String ARG_UPDATE_MEDIA_STORE="updateMediaStore";
-  private static final String ARG_SKIP_ORIENTATION_NORMALIZATION
+  protected static final String ARG_OUTPUT="output";
+  protected static final String ARG_UPDATE_MEDIA_STORE="updateMediaStore";
+  protected static final String ARG_SKIP_ORIENTATION_NORMALIZATION
     ="skipOrientationNormalization";
-  private static final String ARG_IS_VIDEO="isVideo";
-  private static final String ARG_QUALITY="quality";
-  private static final String ARG_SIZE_LIMIT="sizeLimit";
-  private static final String ARG_DURATION_LIMIT="durationLimit";
-  private static final String ARG_ZOOM_STYLE="zoomStyle";
-  private static final String ARG_FACING_EXACT_MATCH="facingExactMatch";
-  private static final String ARG_CHRONOTYPE="chronotype";
+  protected static final String ARG_IS_VIDEO="isVideo";
+  protected static final String ARG_QUALITY="quality";
+  protected static final String ARG_SIZE_LIMIT="sizeLimit";
+  protected static final String ARG_DURATION_LIMIT="durationLimit";
+  protected static final String ARG_ZOOM_STYLE="zoomStyle";
+  protected static final String ARG_FACING_EXACT_MATCH="facingExactMatch";
+  protected static final String ARG_CHRONOTYPE="chronotype";
   private static final int PINCH_ZOOM_DELTA=20;
-  private CameraController ctlr;
+  protected CameraController ctlr;
   private ViewGroup previewStack;
   private FloatingActionButton fabPicture;
-  private FloatingActionButton fabSwitch;
+  private FloatingActionButton fabVideo;
+  private FloatingActionButton fabSwitchFacing;
+  public ImageButton galleryBtn;
   private View progress;
   private boolean isVideoRecording=false;
   private boolean mirrorPreview=false;
@@ -71,6 +74,21 @@ public class CameraFragment extends Fragment {
   private SeekBar zoomSlider;
   private Chronometer chronometer;
   private ReverseChronometer reverseChronometer;
+
+  /**
+   * Event raised when the camera has been opened.
+   * Subscribe to this event if you use open()
+   * to to find out when the open has succeeded.
+   * May include an exception if there was
+   * an exception accessing the camera.
+   */
+  public static class CameraModeChanged {
+    public final boolean isCurrentModeVideo;
+
+    public CameraModeChanged(boolean isCurrentModeVideo) {
+      this.isCurrentModeVideo = isCurrentModeVideo;
+    }
+  }
 
   public static CameraFragment newPictureInstance(Uri output,
                                                   boolean updateMediaStore,
@@ -98,6 +116,7 @@ public class CameraFragment extends Fragment {
                                                 boolean updateMediaStore,
                                                 int quality, int sizeLimit,
                                                 int durationLimit,
+                                                ZoomStyle zoomStyle,
                                                 boolean facingExactMatch,
                                                 ChronoType chronoType) {
     CameraFragment f=new CameraFragment();
@@ -109,6 +128,7 @@ public class CameraFragment extends Fragment {
     args.putInt(ARG_QUALITY, quality);
     args.putInt(ARG_SIZE_LIMIT, sizeLimit);
     args.putInt(ARG_DURATION_LIMIT, durationLimit);
+    args.putSerializable(ARG_ZOOM_STYLE, zoomStyle);
     args.putBoolean(ARG_FACING_EXACT_MATCH, facingExactMatch);
 
     if (durationLimit>0 || chronoType!=ChronoType.COUNT_DOWN) {
@@ -173,7 +193,8 @@ public class CameraFragment extends Fragment {
 
       if (fabPicture!=null) {
         fabPicture.setEnabled(true);
-        fabSwitch.setEnabled(canSwitchSources());
+        fabVideo.setEnabled(true);
+        fabSwitchFacing.setEnabled(canSwitchSources());
       }
     }
   }
@@ -231,12 +252,25 @@ public class CameraFragment extends Fragment {
     previewStack=(ViewGroup)v.findViewById(R.id.cwac_cam2_preview_stack);
 
     progress=v.findViewById(R.id.cwac_cam2_progress);
-    fabPicture=(FloatingActionButton)v.findViewById(R.id.cwac_cam2_picture);
+    fabPicture=(FloatingActionButton)v.findViewById(R.id.cwac_cam2_picture_btn);
+    fabVideo=(FloatingActionButton)v.findViewById(R.id.cwac_cam2_video_btn);
+    fabSwitchFacing =(FloatingActionButton)v.findViewById(R.id.cwac_cam2_switch_camera_btn);
+    galleryBtn=(ImageButton)v.findViewById(R.id.cwac_cam2_gallery_btn);
 
     if (isVideo()) {
       fabPicture.setImageResource(R.drawable.cwac_cam2_ic_videocam);
+      fabVideo.setVisibility(View.GONE);
       chronometer=(Chronometer)v.findViewById(R.id.chrono);
       reverseChronometer=(ReverseChronometer)v.findViewById(R.id.rchrono);
+    } else {
+      fabVideo.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+          fabPicture.setEnabled(false);
+          fabSwitchFacing.setEnabled(false);
+          ctlr.getEngine().getBus().post(new CameraModeChanged(isVideo()));
+        }
+      });
     }
 
     fabPicture.setOnClickListener(new View.OnClickListener() {
@@ -245,13 +279,11 @@ public class CameraFragment extends Fragment {
         performCameraAction();
       }
     });
-
-    fabSwitch=(FloatingActionButton)v.findViewById(R.id.cwac_cam2_switch_camera);
-    fabSwitch.setOnClickListener(new View.OnClickListener() {
+    fabSwitchFacing.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
         progress.setVisibility(View.VISIBLE);
-        fabSwitch.setEnabled(false);
+        fabSwitchFacing.setEnabled(false);
 
         try {
           ctlr.switchCamera();
@@ -263,13 +295,14 @@ public class CameraFragment extends Fragment {
       }
     });
 
-    changeMenuIconAnimation((FloatingActionMenu)v.findViewById(R.id.cwac_cam2_settings));
+//    changeMenuIconAnimation((FloatingActionMenu)v.findViewById(R.id.cwac_cam2_settings));
 
     onHiddenChanged(false); // hack, since this does not get
                             // called on initial display
     
     fabPicture.setEnabled(false);
-    fabSwitch.setEnabled(false);
+    fabVideo.setEnabled(false);
+    fabSwitchFacing.setEnabled(false);
 
     if (ctlr!=null && ctlr.getNumberOfCameras()>0) {
       prepController();
@@ -347,8 +380,9 @@ public class CameraFragment extends Fragment {
   public void onEventMainThread(CameraEngine.OpenedEvent event) {
     if (event.exception==null) {
       progress.setVisibility(View.GONE);
-      fabSwitch.setEnabled(canSwitchSources());
+      fabSwitchFacing.setEnabled(canSwitchSources());
       fabPicture.setEnabled(true);
+      fabVideo.setEnabled(true);
       zoomSlider=(SeekBar)getView().findViewById(R.id.cwac_cam2_zoom);
 
       if (ctlr.supportsZoom()) {
@@ -369,6 +403,9 @@ public class CameraFragment extends Fragment {
       else {
         previewStack.setOnTouchListener(null);
         zoomSlider.setVisibility(View.GONE);
+      }
+      if (isVideo()) {
+        performCameraAction();
       }
     }
     else {
@@ -426,21 +463,19 @@ public class CameraFragment extends Fragment {
   }
 
   private void takePicture() {
-    Uri output=getArguments().getParcelable(ARG_OUTPUT);
-
     PictureTransaction.Builder b=new PictureTransaction.Builder();
+    Uri output=getArguments().getParcelable(ARG_OUTPUT);
 
     if (output!=null) {
       b.toUri(getActivity(), output,
-          getArguments().getBoolean(ARG_UPDATE_MEDIA_STORE, false),
-          getArguments().getBoolean(ARG_SKIP_ORIENTATION_NORMALIZATION, false));
+              getArguments().getBoolean(ARG_UPDATE_MEDIA_STORE, false),
+              getArguments().getBoolean(ARG_SKIP_ORIENTATION_NORMALIZATION, false));
     }
-
     fabPicture.setEnabled(false);
-    fabSwitch.setEnabled(false);
+    fabVideo.setEnabled(false);
+    fabSwitchFacing.setEnabled(false);
     ctlr.takePicture(b.build());
   }
-
   private void recordVideo() {
     if (isVideoRecording) {
       stopVideoRecording(false);
@@ -462,10 +497,10 @@ public class CameraFragment extends Fragment {
         fabPicture.setImageResource(
           R.drawable.cwac_cam2_ic_stop);
         fabPicture.setColorNormalResId(
-          R.color.cwac_cam2_recording_fab);
+          R.color.cwac_cam2_video_fab);
         fabPicture.setColorPressedResId(
-          R.color.cwac_cam2_recording_fab_pressed);
-        fabSwitch.setEnabled(false);
+          R.color.cwac_cam2_video_fab_pressed);
+        fabSwitchFacing.setEnabled(false);
         configureChronometer();
       }
       catch (Exception e) {
@@ -502,14 +537,14 @@ public class CameraFragment extends Fragment {
       R.color.cwac_cam2_picture_fab);
     fabPicture.setColorPressedResId(
       R.color.cwac_cam2_picture_fab_pressed);
-    fabSwitch.setEnabled(canSwitchSources());
+    fabSwitchFacing.setEnabled(canSwitchSources());
   }
 
   private boolean canSwitchSources() {
     return(!getArguments().getBoolean(ARG_FACING_EXACT_MATCH, false));
   }
 
-  private boolean isVideo() {
+  protected boolean isVideo() {
     return(getArguments().getBoolean(ARG_IS_VIDEO, false));
   }
 

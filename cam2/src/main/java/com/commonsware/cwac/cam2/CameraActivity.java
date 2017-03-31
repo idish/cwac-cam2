@@ -52,14 +52,6 @@ public class CameraActivity extends AbstractCameraActivity
     "cwac_cam2_save_preview";
 
   /**
-   * Extra name for whether the camera should allow zoom and
-   * how. Value should be a ZoomStyle (NONE, PINCH, SEEKBAR).
-   * Default is NONE.
-   */
-  public static final String EXTRA_ZOOM_STYLE=
-    "cwac_cam2_zoom_style";
-
-  /**
    * Extra name for how much heap space we should try to use
    * to load the picture for the confirmation screen. Should
    * be a `float` greater than 0.0f and less than 1.0f.
@@ -77,7 +69,7 @@ public class CameraActivity extends AbstractCameraActivity
     "cwac_cam2_skip_orientation_normalization";
 
   private static final String TAG_CONFIRM=ConfirmationFragment.class.getCanonicalName();
-  private static final String[] PERMS={Manifest.permission.CAMERA};
+  public static final String[] PERMS={Manifest.permission.CAMERA};
   private ConfirmationFragment confirmFrag;
   private boolean needsThumbnail=false;
   private boolean isDestroyed=false;
@@ -233,7 +225,7 @@ public class CameraActivity extends AbstractCameraActivity
         getIntent().getBooleanExtra(EXTRA_SKIP_ORIENTATION_NORMALIZATION, false)));
   }
 
-  private void removeFragments() {
+  protected void removeFragments() {
     if (!isDestroyed) {
       getFragmentManager()
         .beginTransaction()
@@ -299,18 +291,6 @@ public class CameraActivity extends AbstractCameraActivity
 
     public IntentBuilder debugSavePreviewFrame() {
       result.putExtra(EXTRA_DEBUG_SAVE_PREVIEW_FRAME, true);
-
-      return(this);
-    }
-
-    /**
-     * Call to configure the ZoomStyle to be used. Default
-     * is NONE.
-     *
-     * @return the builder, for further configuration
-     */
-    public IntentBuilder zoomStyle(ZoomStyle zoomStyle) {
-      result.putExtra(EXTRA_ZOOM_STYLE, zoomStyle);
 
       return(this);
     }

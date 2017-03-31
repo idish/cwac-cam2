@@ -471,7 +471,7 @@ public class CameraController implements CameraView.StateCallback {
   public static class ControllerDestroyedEvent {
     private final CameraController ctlr;
 
-    ControllerDestroyedEvent(CameraController ctlr) {
+    public ControllerDestroyedEvent(CameraController ctlr) {
       this.ctlr=ctlr;
     }
 
