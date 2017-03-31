@@ -57,16 +57,13 @@ public class CameraFragment extends Fragment
   implements ReverseChronometer.Listener {
   protected static final String ARG_OUTPUT="output";
   protected static final String ARG_UPDATE_MEDIA_STORE="updateMediaStore";
-    "updateMediaStore";
-  protected static final String ARG_SKIP_ORIENTATION_NORMALIZATION
-    ="skipOrientationNormalization";
+  protected static final String ARG_SKIP_ORIENTATION_NORMALIZATION ="skipOrientationNormalization";
   protected static final String ARG_IS_VIDEO="isVideo";
   protected static final String ARG_QUALITY="quality";
   protected static final String ARG_SIZE_LIMIT="sizeLimit";
   protected static final String ARG_DURATION_LIMIT="durationLimit";
   protected static final String ARG_ZOOM_STYLE="zoomStyle";
   protected static final String ARG_FACING_EXACT_MATCH="facingExactMatch";
-    "facingExactMatch";
   protected static final String ARG_CHRONOTYPE="chronotype";
   protected static final String ARG_RULE_OF_THIRDS="ruleOfThirds";
   protected static final String ARG_TIMER_DURATION="timerDuration";
@@ -308,8 +305,8 @@ public class CameraFragment extends Fragment
         performCameraAction();
       }
     });
-    fabSwitch=(FloatingActionButton)v.findViewById(
-      R.id.cwac_cam2_switch_camera);
+    fabSwitchFacing =(FloatingActionButton)v.findViewById(
+      R.id.cwac_cam2_switch_camera_btn);
     fabSwitchFacing.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
@@ -327,8 +324,8 @@ public class CameraFragment extends Fragment
       }
     });
 
-    changeMenuIconAnimation(
-     (FloatingActionMenu)v.findViewById(R.id.cwac_cam2_settings));
+//    changeMenuIconAnimation(
+//     (FloatingActionMenu)v.findViewById(R.id.cwac_cam2_settings));
 
     onHiddenChanged(false); // hack, since this does not get
     // called on initial display
