@@ -1,0 +1,10 @@
+<<<<<<< HEAD
+#Fri Mar 31 18:31:25 IDT 2017
+=======
+#Fri Mar 31 17:49:47 IDT 2017
+>>>>>>> master
+distributionBase=GRADLE_USER_HOME
+distributionPath=wrapper/dists
+zipStoreBase=GRADLE_USER_HOME
+zipStorePath=wrapper/dists
+distributionUrl=https\://services.gradle.org/distributions/gradle-3.3-all.zip
