@@ -75,16 +75,23 @@
       android:layout_alignParentBottom="true"
       android:layout_centerHorizontal="true">
 
-    <!-- Currently there is spacing of 8 dp to each side between icon and button-->
-    <com.github.clans.fab.FloatingActionButton
+    <Button
         android:id="@+id/cwac_cam2_picture_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:src="@drawable/modified_camera_80"
-        fab:fab_shadowRadius="16dp"
-        fab:fab_colorNormal="@color/cwac_cam2_picture_fab"
-        fab:fab_colorPressed="@color/cwac_cam2_picture_fab_pressed" />
+        android:background="@drawable/camera_pic_effect"/>
+
+    <!--&lt;!&ndash; Currently there is spacing of 8 dp to each side between icon and button&ndash;&gt;-->
+    <!--<com.github.clans.fab.FloatingActionButton-->
+        <!--android:id="@+id/cwac_cam2_picture_btn"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_centerInParent="true"-->
+        <!--android:src="@drawable/modified_camera_80"-->
+        <!--fab:fab_shadowRadius="16dp"-->
+        <!--fab:fab_colorNormal="@color/cwac_cam2_picture_fab"-->
+        <!--fab:fab_colorPressed="@color/cwac_cam2_picture_fab_pressed" />-->
 
     <com.github.clans.fab.FloatingActionButton
         android:id="@+id/cwac_cam2_video_btn"

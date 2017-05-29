@@ -38,6 +38,7 @@ import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.OvershootInterpolator;
+import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -71,7 +72,7 @@ public class CameraFragment extends Fragment
   private static final int PINCH_ZOOM_DELTA=20;
   protected CameraController ctlr;
   private ViewGroup previewStack;
-  private FloatingActionButton fabPicture;
+  private Button fabPicture;
   private FloatingActionButton fabVideo;
   private FloatingActionButton fabSwitchFacing;
   public ImageButton galleryBtn;
@@ -275,7 +276,7 @@ public class CameraFragment extends Fragment
 
     progress=v.findViewById(R.id.cwac_cam2_progress);
     fabPicture=
-      (FloatingActionButton)v.findViewById(R.id.cwac_cam2_picture_btn);
+      (Button)v.findViewById(R.id.cwac_cam2_picture_btn);
 	fabVideo=
 	   (FloatingActionButton)v.findViewById(R.id.cwac_cam2_video_btn);
 	fabSwitchFacing =
@@ -286,7 +287,7 @@ public class CameraFragment extends Fragment
       (ReverseChronometer)v.findViewById(R.id.rchrono);
 
     if (isVideo()) {
-      fabPicture.setImageResource(R.drawable.cwac_cam2_ic_videocam);
+//      fabPicture.setImageResource(R.drawable.cwac_cam2_ic_videocam);
       fabVideo.setVisibility(View.GONE);
       chronometer=(Chronometer)v.findViewById(R.id.chrono);
     } else {
@@ -554,19 +555,19 @@ public class CameraFragment extends Fragment
 
         ctlr.recordVideo(b.build());
         isVideoRecording=true;
-        fabPicture.setImageResource(
-          R.drawable.cwac_cam2_ic_stop);
-        fabPicture.setColorNormalResId(
-          R.color.cwac_cam2_video_fab);
-        fabPicture.setColorPressedResId(
-          R.color.cwac_cam2_video_fab_pressed);
+//        fabPicture.setImageResource(
+//          R.drawable.cwac_cam2_ic_stop);
+//        fabPicture.setColorNormalResId(
+//          R.color.cwac_cam2_video_fab);
+//        fabPicture.setColorPressedResId(
+//          R.color.cwac_cam2_video_fab_pressed);
         fabSwitchFacing.setEnabled(false);
         configureChronometer();
       }
       catch (Exception e) {
         Log.e(getClass().getSimpleName(),
           "Exception recording video", e);
-        // TODO: um, do something here
+        // TODO: um, do something here and return to last state.. to test and go into this exception, do not put output uri
       }
     }
   }
@@ -592,12 +593,12 @@ public class CameraFragment extends Fragment
   }
 
   private void setVideoFABToNormal() {
-    fabPicture.setImageResource(
-      R.drawable.cwac_cam2_ic_videocam);
-    fabPicture.setColorNormalResId(
-      R.color.cwac_cam2_picture_fab);
-    fabPicture.setColorPressedResId(
-      R.color.cwac_cam2_picture_fab_pressed);
+//    fabPicture.setImageResource(
+//      R.drawable.cwac_cam2_ic_videocam);
+//    fabPicture.setColorNormalResId(
+//      R.color.cwac_cam2_picture_fab);
+//    fabPicture.setColorPressedResId(
+//      R.color.cwac_cam2_picture_fab_pressed);
     fabSwitchFacing.setEnabled(canSwitchSources());
   }
 
