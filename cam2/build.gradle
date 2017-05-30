@@ -6,6 +6,7 @@ group='com.github.idish'
 dependencies {
     compile 'com.github.clans:fab:1.6.4'
     compile 'org.greenrobot:eventbus:3.0.0'
+    compile 'com.android.support:appcompat-v7:25.3.1'
 }
 
 android {
@@ -17,6 +18,7 @@ android {
         targetSdkVersion 23
         testApplicationId "com.commonsware.cwac.cam2.test"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        vectorDrawables.useSupportLibrary = true
     }
 
     packagingOptions {

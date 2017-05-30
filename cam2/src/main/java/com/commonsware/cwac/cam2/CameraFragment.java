@@ -31,6 +31,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.support.v7.widget.AppCompatImageView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -72,9 +73,9 @@ public class CameraFragment extends Fragment
   private static final int PINCH_ZOOM_DELTA=20;
   protected CameraController ctlr;
   private ViewGroup previewStack;
-  private Button fabPicture;
+  private ImageView fabPicture;
   private FloatingActionButton fabVideo;
-  private FloatingActionButton fabSwitchFacing;
+  private AppCompatImageView fabSwitchFacing;
   public ImageButton galleryBtn;
   private View progress;
   private boolean isVideoRecording=false;
@@ -276,11 +277,11 @@ public class CameraFragment extends Fragment
 
     progress=v.findViewById(R.id.cwac_cam2_progress);
     fabPicture=
-      (Button)v.findViewById(R.id.cwac_cam2_picture_btn);
+      (ImageView)v.findViewById(R.id.cwac_cam2_picture_btn);
 	fabVideo=
 	   (FloatingActionButton)v.findViewById(R.id.cwac_cam2_video_btn);
 	fabSwitchFacing =
-	   (FloatingActionButton)v.findViewById(R.id.cwac_cam2_switch_camera_btn);
+	   (AppCompatImageView) v.findViewById(R.id.cwac_cam2_switch_camera_btn);
     galleryBtn=
 	   (ImageButton)v.findViewById(R.id.cwac_cam2_gallery_btn);
     reverseChronometer=
@@ -307,8 +308,6 @@ public class CameraFragment extends Fragment
         performCameraAction();
       }
     });
-    fabSwitchFacing =(FloatingActionButton)v.findViewById(
-      R.id.cwac_cam2_switch_camera_btn);
     fabSwitchFacing.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
