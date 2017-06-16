@@ -99,7 +99,6 @@ public class CameraActivity extends AbstractCameraActivity
   @Override
   protected void init() {
     super.init();
-
     confirmFrag=(ConfirmationFragment)getFragmentManager().findFragmentByTag(TAG_CONFIRM);
 
     Uri output=getOutputUri();

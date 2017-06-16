@@ -7,6 +7,9 @@ dependencies {
     compile 'com.github.clans:fab:1.6.4'
     compile 'org.greenrobot:eventbus:3.0.0'
     compile 'com.android.support:appcompat-v7:25.3.1'
+    compile 'com.android.support:recyclerview-v7:25.3.1'
+    // Used for android.app.FragmentPagerAdapter (native support)
+    compile 'com.android.support:support-v13:25.3.1'
 }
 
 android {
