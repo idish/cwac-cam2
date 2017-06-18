@@ -82,7 +82,7 @@
       android:visibility="gone" />
 
   <RelativeLayout
-      android:layout_above="@+id/camera_mode_switch_view_pager"
+      android:layout_above="@+id/camera_mode_switcher_rv"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_marginBottom="16dp"
@@ -140,12 +140,21 @@
   </RelativeLayout>
 
   <android.support.v7.widget.RecyclerView
-      android:id="@+id/camera_mode_switch_view_pager"
-      android:layout_alignParentBottom="true"
-      android:layout_width="match_parent"
-      android:layout_height="30dp">
+      android:id="@+id/camera_mode_switcher_rv"
+      android:layout_above="@+id/upArrow"
+      android:layout_width="fill_parent"
+      android:layout_height="wrap_content">
 
   </android.support.v7.widget.RecyclerView>
+
+  <android.support.v7.widget.AppCompatImageView
+      android:id="@+id/upArrow"
+      android:layout_width="16dp"
+      android:layout_height="16dp"
+      app:srcCompat="@drawable/ic_up_arrow_triangle"
+      android:layout_alignParentBottom="true"
+      android:layout_centerHorizontal="true"
+      />
 
   <!--<HorizontalScrollView-->
       <!--android:id="@+id/camera_mode_switch_view_pager"-->

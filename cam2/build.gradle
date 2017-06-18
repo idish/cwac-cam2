@@ -8,6 +8,7 @@ dependencies {
     compile 'org.greenrobot:eventbus:3.0.0'
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.android.support:recyclerview-v7:25.3.1'
+    compile 'me.everything:overscroll-decor-android:1.0.4'
     // Used for android.app.FragmentPagerAdapter (native support)
     compile 'com.android.support:support-v13:25.3.1'
 }

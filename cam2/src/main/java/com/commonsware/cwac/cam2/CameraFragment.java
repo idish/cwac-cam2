@@ -31,14 +31,18 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.support.v4.view.ViewPager;
 import android.support.v7.widget.AppCompatImageView;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.LinearSnapHelper;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SnapHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.OvershootInterpolator;
 import android.widget.Chronometer;
 import android.widget.ImageButton;
@@ -52,6 +56,8 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedList;
+
+import me.everything.android.ui.overscroll.OverScrollDecoratorHelper;
 
 /**
  * Fragment for displaying a camera preview, with hooks to allow
@@ -79,8 +85,8 @@ public class CameraFragment extends Fragment
   private AppCompatImageView imgSwitchFacing;
   private FlashMode mCurrentFlashMode;
   private AppCompatImageView imgFlash;
-  private ViewPager mCameraModeSwitchViewPager;
-  private CameraModesFragmentPagerAdapter mAdapter;
+  private RecyclerView mCameraModeSwitcherRV;
+  private CameraModeSwitcherAdapter mAdapter;
   public ImageButton galleryBtn;
   private View progress;
   private boolean isVideoRecording = false;
@@ -259,6 +265,8 @@ public class CameraFragment extends Fragment
     super.onDestroy();
   }
 
+  private int prevCenterPos;
+
   /**
    * Standard callback method to create the UI managed by
    * this fragment.
@@ -288,33 +296,92 @@ public class CameraFragment extends Fragment
     imgFlash =
             (AppCompatImageView) v.findViewById(R.id.cwac_cam2_flash_btn);
 
-    // View Pager used to switch camera types (i.e: photo or video)
-    mCameraModeSwitchViewPager =
-            (ViewPager) v.findViewById(R.id.camera_mode_switch_view_pager);
-    mAdapter = new CameraModesFragmentPagerAdapter(getFragmentManager());
-      mCameraModeSwitchViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-        @Override
-        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-          if (position == 0) {
-            // Changing to PICTURE mode
-            ctlr.getEngine().getBus().post(new CameraModeChanged(true));
-          } else if (position == 1) {
-            // Changing to VIDEO mode
-            ctlr.getEngine().getBus().post(new CameraModeChanged(false));
-          }
-        }
+    // Recycler view used to switch camera types (i.e: photo or video)
+    mCameraModeSwitcherRV =
+            (RecyclerView) v.findViewById(R.id.camera_mode_switcher_rv);
+    mCameraModeSwitcherRV.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false));
+      // Horizontal
+      OverScrollDecoratorHelper.setUpOverScroll(mCameraModeSwitcherRV, OverScrollDecoratorHelper.ORIENTATION_HORIZONTAL);
+    SnapHelper snapHelper = new LinearSnapHelper();
+    snapHelper.attachToRecyclerView(mCameraModeSwitcherRV);
 
-        @Override
-        public void onPageSelected(int position) {
-
-        }
-
-        @Override
-        public void onPageScrollStateChanged(int state) {
-
-        }
-      });
-    mCameraModeSwitchViewPager.setAdapter(mAdapter);
+    mAdapter = new CameraModeSwitcherAdapter();
+    mAdapter.setCameraModeSwitcherViewClickListener(new CameraModeSwitcherAdapter.CameraModeSwitcherViewClickListener() {
+      @Override
+      public void onClick(int position) {
+          View view = mCameraModeSwitcherRV.getLayoutManager().findViewByPosition(position);
+          int middle = mCameraModeSwitcherRV.getWidth() / 2;
+//        mCameraModeSwitcherRV.getLayoutManager().smoothScrollToPosition(mCameraModeSwitcherRV, null, position);
+//        mCameraModeSwitcherRV.scrollBy(middle, 0);
+          // Override smoothscrollToPosition to be slower (LinearLayoutManager)
+          mCameraModeSwitcherRV.smoothScrollToPosition(position);
+//          mCameraModeSwitcherRV.smoothScrollBy(view.getLeft() - middle, 0, new AccelerateDecelerateInterpolator());
+//          if (position == 0) {
+//              // Changing to PICTURE mode
+//              ctlr.getEngine().getBus().post(new CameraModeChanged(true));
+//          } else if (position == 1) {
+//              // Changing to VIDEO mode
+//              ctlr.getEngine().getBus().post(new CameraModeChanged(false));
+//          }
+      }
+    });
+    mCameraModeSwitcherRV.post(new Runnable() {
+      @Override
+      public void run() {
+        mCameraModeSwitcherRV.addItemDecoration(new PaddingFirstItemDecoration(mCameraModeSwitcherRV.getWidth() / 2));
+      }
+    });
+    mCameraModeSwitcherRV.setAdapter(mAdapter);
+//    mCameraModeSwitcherRV.addOnScrollListener(new RecyclerView.OnScrollListener() {
+//      @Override
+//      public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+//        super.onScrolled(recyclerView, dx, dy);
+//        int center = mCameraModeSwitcherRV.getWidth() / 2;
+//        View centerView = mCameraModeSwitcherRV.findChildViewUnder(center, mCameraModeSwitcherRV.getTop());
+//        int centerPos = mCameraModeSwitcherRV.getChildAdapterPosition(centerView);
+//
+////        if (prevCenterPos != centerPos) {
+////          // dehighlight the previously highlighted view
+////          View prevView = mCameraModeSwitcherRV.getLayoutManager().findViewByPosition(prevCenterPos);
+////          if (prevView != null) {
+////            View button = prevView.findViewById(R.id.rv_trends_graph_button);
+////
+////          }
+////
+////          // highlight view in the middle
+////          if (centerView != null) {
+////            View button = centerView.findViewById(R.id.rv_trends_graph_button);
+////
+////          }
+////
+////          prevCenterPos = centerPos;
+////        }
+//
+//      }
+//    });
+//      mCameraModeSwitcherRV.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+//        @Override
+//        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+//          if (position == 0) {
+//            // Changing to PICTURE mode
+//            ctlr.getEngine().getBus().post(new CameraModeChanged(true));
+//          } else if (position == 1) {
+//            // Changing to VIDEO mode
+//            ctlr.getEngine().getBus().post(new CameraModeChanged(false));
+//          }
+//        }
+//
+//        @Override
+//        public void onPageSelected(int position) {
+//
+//        }
+//
+//        @Override
+//        public void onPageScrollStateChanged(int state) {
+//
+//        }
+//      });
+//    mCameraModeSwitcherRV.setAdapter(mAdapter);
 
     // set current default flash mode to off
     mCurrentFlashMode = FlashMode.OFF;
