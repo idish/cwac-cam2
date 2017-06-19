@@ -31,6 +31,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.LinearSnapHelper;
@@ -48,6 +49,8 @@ import android.widget.Chronometer;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
+import android.widget.TextView;
+
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
 
@@ -86,6 +89,7 @@ public class CameraFragment extends Fragment
   private FlashMode mCurrentFlashMode;
   private AppCompatImageView imgFlash;
   private RecyclerView mCameraModeSwitcherRV;
+  RecyclerView.LayoutManager mLayoutManager;
   private CameraModeSwitcherAdapter mAdapter;
   public ImageButton galleryBtn;
   private View progress;
@@ -299,18 +303,19 @@ public class CameraFragment extends Fragment
     // Recycler view used to switch camera types (i.e: photo or video)
     mCameraModeSwitcherRV =
             (RecyclerView) v.findViewById(R.id.camera_mode_switcher_rv);
-    mCameraModeSwitcherRV.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false));
+    mLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
+    mCameraModeSwitcherRV.setLayoutManager(mLayoutManager);
       // Horizontal
       OverScrollDecoratorHelper.setUpOverScroll(mCameraModeSwitcherRV, OverScrollDecoratorHelper.ORIENTATION_HORIZONTAL);
-    SnapHelper snapHelper = new LinearSnapHelper();
+    final SnapHelper snapHelper = new LinearSnapHelper();
     snapHelper.attachToRecyclerView(mCameraModeSwitcherRV);
 
     mAdapter = new CameraModeSwitcherAdapter();
     mAdapter.setCameraModeSwitcherViewClickListener(new CameraModeSwitcherAdapter.CameraModeSwitcherViewClickListener() {
       @Override
       public void onClick(int position) {
-          View view = mCameraModeSwitcherRV.getLayoutManager().findViewByPosition(position);
-          int middle = mCameraModeSwitcherRV.getWidth() / 2;
+//          View view = mCameraModeSwitcherRV.getLayoutManager().findViewByPosition(position);
+//          int middle = mCameraModeSwitcherRV.getWidth() / 2;
 //        mCameraModeSwitcherRV.getLayoutManager().smoothScrollToPosition(mCameraModeSwitcherRV, null, position);
 //        mCameraModeSwitcherRV.scrollBy(middle, 0);
           // Override smoothscrollToPosition to be slower (LinearLayoutManager)
@@ -332,33 +337,59 @@ public class CameraFragment extends Fragment
       }
     });
     mCameraModeSwitcherRV.setAdapter(mAdapter);
-//    mCameraModeSwitcherRV.addOnScrollListener(new RecyclerView.OnScrollListener() {
-//      @Override
-//      public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-//        super.onScrolled(recyclerView, dx, dy);
-//        int center = mCameraModeSwitcherRV.getWidth() / 2;
-//        View centerView = mCameraModeSwitcherRV.findChildViewUnder(center, mCameraModeSwitcherRV.getTop());
-//        int centerPos = mCameraModeSwitcherRV.getChildAdapterPosition(centerView);
-//
-////        if (prevCenterPos != centerPos) {
-////          // dehighlight the previously highlighted view
-////          View prevView = mCameraModeSwitcherRV.getLayoutManager().findViewByPosition(prevCenterPos);
-////          if (prevView != null) {
-////            View button = prevView.findViewById(R.id.rv_trends_graph_button);
-////
-////          }
-////
-////          // highlight view in the middle
-////          if (centerView != null) {
-////            View button = centerView.findViewById(R.id.rv_trends_graph_button);
-////
-////          }
-////
-////          prevCenterPos = centerPos;
-////        }
-//
+
+    mCameraModeSwitcherRV.addOnScrollListener(new RecyclerView.OnScrollListener() {
+
+        // Seems that there's a bug that the onScrolled is called on startup of the recyclerview and the snapView is not the center one
+        // so we'll have to make a switch of the positions
+        boolean isFirstTimeCalled = true;
+      @Override
+      public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+          super.onScrolled(recyclerView, dx, dy);
+
+//      if (scrolledPosition == 0) {
+//        // Changing to PICTURE mode
+//        ctlr.getEngine().getBus().post(new CameraModeChanged(true));
+//      } else if (scrolledPosition == 1) {
+//        // Changing to VIDEO mode
+//        ctlr.getEngine().getBus().post(new CameraModeChanged(false));
 //      }
-//    });
+
+          // TODO: change the button drawable to video type and vice versa
+
+          // NOTE: For some reason it seems as that the onScrolled event is called on the startup of the recyclerview, and the snapView is pretty fucked up
+          // at that time, so we explicitly grey the other item
+          if (isFirstTimeCalled) {
+              // gray the non centered view (pretty shit code)
+              View otherView = mCameraModeSwitcherRV.getLayoutManager().findViewByPosition(1);
+              TextView txtView = (TextView) otherView.findViewById(R.id.camera_mode_txt);
+              txtView.setTextColor(ContextCompat.getColor(getActivity(), R.color.cwac_cam2_text_light_disabled));
+              isFirstTimeCalled = false;
+          }
+          else {
+              View centerView = snapHelper.findSnapView(mLayoutManager);
+              int centerPos = mCameraModeSwitcherRV.getChildAdapterPosition(centerView);
+
+              if (prevCenterPos != centerPos) {
+                  // dehighlight the previously highlighted view
+                  View prevView = mCameraModeSwitcherRV.getLayoutManager().findViewByPosition(prevCenterPos);
+                  if (prevView != null) {
+                      TextView txtView = (TextView) prevView.findViewById(R.id.camera_mode_txt);
+                      txtView.setTextColor(ContextCompat.getColor(getActivity(), R.color.cwac_cam2_text_light_disabled));
+                  }
+
+                  // highlight view in the middle
+                  if (centerView != null) {
+                      TextView txtView = (TextView) centerView.findViewById(R.id.camera_mode_txt);
+                      txtView.setTextColor(ContextCompat.getColor(getActivity(), R.color.cwac_cam2_text_light_enabled));
+                  }
+
+                  prevCenterPos = centerPos;
+              }
+          }
+
+      }
+    });
 //      mCameraModeSwitcherRV.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 //        @Override
 //        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {

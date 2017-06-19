@@ -28,21 +28,13 @@ public class CameraModeSwitcherAdapter extends RecyclerView.Adapter<CameraModeSw
     @Override
     public CameraModeSwitcherViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.cam_mode_switcher_adapter, parent, false);
-        // Set the width to show 7 elements
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        WindowManager windowmanager = (WindowManager) parent.getContext().getSystemService(Context.WINDOW_SERVICE);
-        windowmanager.getDefaultDisplay().getMetrics(displayMetrics);
-        int deviceWidth = displayMetrics.widthPixels;
-        float itemWidth = ((deviceWidth) / 2f + 1f);
-//        v.getLayoutParams().width = (int) itemWidth;
-
         return new CameraModeSwitcherViewHolder(v);
     }
 
     @Override
     public void onBindViewHolder(CameraModeSwitcherViewHolder holder, final int position) {
         if (position == 0) {
-            holder.cameraModeTxtView.setText("PICTURE");
+            holder.cameraModeTxtView.setText("PHOTO");
         } else if (position == 1){
             holder.cameraModeTxtView.setText("VIDEO");
         }

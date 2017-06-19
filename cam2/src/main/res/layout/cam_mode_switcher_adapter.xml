@@ -7,7 +7,7 @@
 
     <TextView
         android:id="@+id/camera_mode_txt"
-        android:textColor="@android:color/white"
+        android:textColor="@color/cwac_cam2_text_light_enabled"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
