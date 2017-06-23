@@ -43,7 +43,6 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.OvershootInterpolator;
 import android.widget.Chronometer;
 import android.widget.ImageButton;
@@ -51,7 +50,6 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
 
 import org.greenrobot.eventbus.Subscribe;
@@ -71,7 +69,7 @@ public class CameraFragment extends Fragment
   protected static final String ARG_OUTPUT = "output";
   protected static final String ARG_UPDATE_MEDIA_STORE = "updateMediaStore";
   protected static final String ARG_SKIP_ORIENTATION_NORMALIZATION = "skipOrientationNormalization";
-  protected static final String ARG_IS_VIDEO = "isVideo";
+  protected static final String ARG_IS_VIDEO = "isVideoFragment";
   protected static final String ARG_QUALITY = "quality";
   protected static final String ARG_SIZE_LIMIT = "sizeLimit";
   protected static final String ARG_DURATION_LIMIT = "durationLimit";
@@ -83,15 +81,14 @@ public class CameraFragment extends Fragment
   private static final int PINCH_ZOOM_DELTA = 20;
   protected CameraController ctlr;
   private ViewGroup previewStack;
-  private ImageView fabPicture;
-  private FloatingActionButton fabVideo;
+  private ImageView mCameraBtn;
   private AppCompatImageView imgSwitchFacing;
   private FlashMode mCurrentFlashMode;
   private AppCompatImageView imgFlash;
   private RecyclerView mCameraModeSwitcherRV;
   RecyclerView.LayoutManager mLayoutManager;
   private CameraModeSwitcherAdapter mAdapter;
-  public ImageButton galleryBtn;
+  public ImageView mSafeGalleryImgView;
   private View progress;
   private boolean isVideoRecording = false;
   private boolean mirrorPreview = false;
@@ -100,6 +97,9 @@ public class CameraFragment extends Fragment
   private SeekBar zoomSlider;
   private Chronometer chronometer;
   private ReverseChronometer reverseChronometer;
+
+  // At default we are gonna take a picture
+  private boolean mIsVideoCameraSelected = false;
 
   /**
    * Event raised when the camera has been opened.
@@ -224,9 +224,8 @@ public class CameraFragment extends Fragment
         }
       }
 
-      if (fabPicture != null) {
-        fabPicture.setEnabled(true);
-        fabVideo.setEnabled(true);
+      if (mCameraBtn != null) {
+        mCameraBtn.setEnabled(true);
         imgSwitchFacing.setEnabled(canSwitchSources());
       }
     }
@@ -291,10 +290,8 @@ public class CameraFragment extends Fragment
             (ViewGroup) v.findViewById(R.id.cwac_cam2_preview_stack);
 
     progress = v.findViewById(R.id.cwac_cam2_progress);
-    fabPicture =
+    mCameraBtn =
             (ImageView) v.findViewById(R.id.cwac_cam2_picture_btn);
-    fabVideo =
-            (FloatingActionButton) v.findViewById(R.id.cwac_cam2_video_btn);
     imgSwitchFacing =
             (AppCompatImageView) v.findViewById(R.id.cwac_cam2_switch_camera_btn);
     imgFlash =
@@ -337,7 +334,8 @@ public class CameraFragment extends Fragment
       }
     });
     mCameraModeSwitcherRV.setAdapter(mAdapter);
-
+    mCameraModeSwitcherRV.setHasFixedSize(true);
+    mCameraModeSwitcherRV.setNestedScrollingEnabled(false);
     mCameraModeSwitcherRV.addOnScrollListener(new RecyclerView.OnScrollListener() {
 
         // Seems that there's a bug that the onScrolled is called on startup of the recyclerview and the snapView is not the center one
@@ -385,60 +383,49 @@ public class CameraFragment extends Fragment
                   }
 
                   prevCenterPos = centerPos;
+
+                if (centerPos == 0) {
+                    mCameraBtn.setImageResource(R.drawable.camera_pic_effect);
+
+                    // Reset to gonna take a picture
+                    mIsVideoCameraSelected = false;
+                } else if (centerPos == 1) {
+                    mCameraBtn.setImageResource(R.drawable.camera_vid_effect);
+                    mIsVideoCameraSelected = true;
+                }
               }
           }
 
       }
     });
-//      mCameraModeSwitcherRV.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-//        @Override
-//        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-//          if (position == 0) {
-//            // Changing to PICTURE mode
-//            ctlr.getEngine().getBus().post(new CameraModeChanged(true));
-//          } else if (position == 1) {
-//            // Changing to VIDEO mode
-//            ctlr.getEngine().getBus().post(new CameraModeChanged(false));
-//          }
-//        }
-//
-//        @Override
-//        public void onPageSelected(int position) {
-//
-//        }
-//
-//        @Override
-//        public void onPageScrollStateChanged(int state) {
-//
-//        }
-//      });
-//    mCameraModeSwitcherRV.setAdapter(mAdapter);
 
     // set current default flash mode to off
     mCurrentFlashMode = FlashMode.OFF;
 
-    galleryBtn =
-            (ImageButton) v.findViewById(R.id.cwac_cam2_gallery_btn);
+    mSafeGalleryImgView =
+            (ImageView) v.findViewById(R.id.cwac_cam2_gallery_btn);
     reverseChronometer =
             (ReverseChronometer) v.findViewById(R.id.rchrono);
 
 
-    if (isVideo()) {
-//      fabPicture.setImageResource(R.drawable.cwac_cam2_ic_videocam);
-      fabVideo.setVisibility(View.GONE);
+    if (isVideoFragment()) {
+      mIsVideoCameraSelected = true;
+      mCameraBtn.setImageResource(R.drawable.camera_vid_effect);
+      mCameraModeSwitcherRV.setVisibility(View.INVISIBLE);
       chronometer = (Chronometer) v.findViewById(R.id.chrono);
-    } else {
-      fabVideo.setOnClickListener(new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-          fabPicture.setEnabled(false);
-          imgSwitchFacing.setEnabled(false);
-          ctlr.getEngine().getBus().post(new CameraModeChanged(false));
-        }
-      });
     }
+//    else {
+//      fabVideo.setOnClickListener(new View.OnClickListener() {
+//        @Override
+//        public void onClick(View view) {
+//          mCameraBtn.setEnabled(false);
+//          imgSwitchFacing.setEnabled(false);
+//          ctlr.getEngine().getBus().post(new CameraModeChanged(false));
+//        }
+//      });
+//    }
 
-    fabPicture.setOnClickListener(new View.OnClickListener() {
+    mCameraBtn.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
         performCameraAction();
@@ -499,8 +486,7 @@ public class CameraFragment extends Fragment
     onHiddenChanged(false); // hack, since this does not get
     // called on initial display
 
-    fabPicture.setEnabled(false);
-    fabVideo.setEnabled(false);
+    mCameraBtn.setEnabled(false);
     imgSwitchFacing.setEnabled(false);
 
     if (ctlr != null && ctlr.getNumberOfCameras() > 0) {
@@ -590,8 +576,7 @@ public class CameraFragment extends Fragment
     if (event.exception == null) {
       progress.setVisibility(View.GONE);
       imgSwitchFacing.setEnabled(canSwitchSources());
-      fabPicture.setEnabled(true);
-      fabVideo.setEnabled(true);
+      mCameraBtn.setEnabled(true);
       zoomSlider = (SeekBar) getView().findViewById(R.id.cwac_cam2_zoom);
 
       int timerDuration = getArguments().getInt(ARG_TIMER_DURATION);
@@ -621,45 +606,12 @@ public class CameraFragment extends Fragment
         previewStack.setOnTouchListener(null);
         zoomSlider.setVisibility(View.GONE);
       }
-      if (isVideo()) {
+      if (isVideoFragment()) {
+          // NOTE: If its a video we start recording automatically @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         performCameraAction();
       }
     } else {
       ctlr.postError(ErrorConstants.ERROR_OPEN_CAMERA,
-              event.exception);
-      getActivity().finish();
-    }
-  }
-
-  @SuppressWarnings("unused")
-  @Subscribe(threadMode = ThreadMode.MAIN)
-  public void onEventMainThread(CameraEngine.VideoTakenEvent event) {
-    isVideoRecording = false;
-    stopChronometers();
-
-    if (event.exception == null) {
-      if (getArguments().getBoolean(ARG_UPDATE_MEDIA_STORE, false)) {
-        final Context app = getActivity().getApplicationContext();
-        Uri output = getArguments().getParcelable(ARG_OUTPUT);
-        final String path = output.getPath();
-
-        new Thread() {
-          @Override
-          public void run() {
-            SystemClock.sleep(2000);
-            MediaScannerConnection.scanFile(app,
-                    new String[]{path}, new String[]{"video/mp4"},
-                    null);
-          }
-        }.start();
-      }
-
-      isVideoRecording = false;
-      setVideoFABToNormal();
-    } else if (getActivity().isFinishing()) {
-      shutdown();
-    } else {
-      ctlr.postError(ErrorConstants.ERROR_VIDEO_TAKEN,
               event.exception);
       getActivity().finish();
     }
@@ -674,10 +626,18 @@ public class CameraFragment extends Fragment
   }
 
   protected void performCameraAction() {
-    if (isVideo()) {
-      recordVideo();
+    if (mIsVideoCameraSelected) {
+        if (isVideoFragment()) {
+          toggleVideoRecording();
+        } else {
+          // This would start recording video automatically
+          ctlr.getEngine().getBus().post(new CameraModeChanged(false));
+        }
     } else {
-      takePicture();
+      // This is just for sanity, because we always at PICTURE mode fragment, unless we're in the middle of recording a video
+      if (!isVideoFragment()) {
+        takePicture();
+      }
     }
   }
 
@@ -691,42 +651,46 @@ public class CameraFragment extends Fragment
               getArguments().getBoolean(ARG_SKIP_ORIENTATION_NORMALIZATION,
                       false));
     }
-    fabPicture.setEnabled(false);
-    fabVideo.setEnabled(false);
+    mCameraBtn.setEnabled(false);
     imgSwitchFacing.setEnabled(false);
     ctlr.takePicture(b.build());
   }
 
+  private void toggleVideoRecording() {
+     if (isVideoRecording) {
+        stopVideoRecording(false);
+     } else {
+       recordVideo();
+     }
+  }
+
   private void recordVideo() {
-    if (isVideoRecording) {
-      stopVideoRecording(false);
-    } else {
-      try {
-        VideoTransaction.Builder b =
-                new VideoTransaction.Builder();
-        Uri output = getArguments().getParcelable(ARG_OUTPUT);
+    try {
+      VideoTransaction.Builder b =
+              new VideoTransaction.Builder();
+      Uri output = getArguments().getParcelable(ARG_OUTPUT);
 
-        b.to(new File(output.getPath()))
-                .quality(getArguments().getInt(ARG_QUALITY, 1))
-                .sizeLimit(getArguments().getInt(ARG_SIZE_LIMIT, 0))
-                .durationLimit(
-                        getArguments().getInt(ARG_DURATION_LIMIT, 0));
+      b.to(new File(output.getPath()))
+              .quality(getArguments().getInt(ARG_QUALITY, 1))
+              .sizeLimit(getArguments().getInt(ARG_SIZE_LIMIT, 0))
+              .durationLimit(
+                      getArguments().getInt(ARG_DURATION_LIMIT, 0));
 
-        ctlr.recordVideo(b.build());
-        isVideoRecording = true;
-//        fabPicture.setImageResource(
+      ctlr.recordVideo(b.build());
+      mCameraBtn.setImageResource(R.drawable.camera_vid_recording_effect);
+      isVideoRecording = true;
+//        mCameraBtn.setImageResource(
 //          R.drawable.cwac_cam2_ic_stop);
-//        fabPicture.setColorNormalResId(
+//        mCameraBtn.setColorNormalResId(
 //          R.color.cwac_cam2_video_fab);
-//        fabPicture.setColorPressedResId(
+//        mCameraBtn.setColorPressedResId(
 //          R.color.cwac_cam2_video_fab_pressed);
-        imgSwitchFacing.setEnabled(false);
-        configureChronometer();
-      } catch (Exception e) {
-        Log.e(getClass().getSimpleName(),
-                "Exception recording video", e);
-        // TODO: um, do something here and return to last state.. to test and go into this exception, do not put output uri
-      }
+      imgSwitchFacing.setEnabled(false);
+      configureChronometer();
+    } catch (Exception e) {
+      Log.e(getClass().getSimpleName(),
+              "Exception recording video", e);
+      // TODO: um, do something here and return to last state.. to test and go into this exception, do not put output uri
     }
   }
 
@@ -749,11 +713,11 @@ public class CameraFragment extends Fragment
   }
 
   private void setVideoFABToNormal() {
-//    fabPicture.setImageResource(
+//    mCameraBtn.setImageResource(
 //      R.drawable.cwac_cam2_ic_videocam);
-//    fabPicture.setColorNormalResId(
+//    mCameraBtn.setColorNormalResId(
 //      R.color.cwac_cam2_picture_fab);
-//    fabPicture.setColorPressedResId(
+//    mCameraBtn.setColorPressedResId(
 //      R.color.cwac_cam2_picture_fab_pressed);
     imgSwitchFacing.setEnabled(canSwitchSources());
   }
@@ -763,7 +727,7 @@ public class CameraFragment extends Fragment
             false));
   }
 
-  protected boolean isVideo() {
+  protected boolean isVideoFragment() {
     return (getArguments().getBoolean(ARG_IS_VIDEO, false));
   }
 
