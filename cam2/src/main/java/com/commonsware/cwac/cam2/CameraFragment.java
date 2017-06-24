@@ -26,6 +26,8 @@ import android.animation.ObjectAnimator;
 import android.app.ActionBar;
 import android.app.Fragment;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
@@ -578,6 +580,8 @@ public class CameraFragment extends Fragment
       imgSwitchFacing.setEnabled(canSwitchSources());
       mCameraBtn.setEnabled(true);
       zoomSlider = (SeekBar) getView().findViewById(R.id.cwac_cam2_zoom);
+      zoomSlider.getProgressDrawable().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN);
+      zoomSlider.getThumb().setColorFilter(Color.YELLOW, PorterDuff.Mode.SRC_IN);
 
       int timerDuration = getArguments().getInt(ARG_TIMER_DURATION);
 
@@ -590,18 +594,17 @@ public class CameraFragment extends Fragment
       }
 
       if (ctlr.supportsZoom()) {
-        if (getZoomStyle() == ZoomStyle.PINCH) {
-          previewStack.setOnTouchListener(
-                  new View.OnTouchListener() {
-                    @Override
-                    public boolean onTouch(View v, MotionEvent event) {
-                      return (scaleDetector.onTouchEvent(event));
-                    }
-                  });
-        } else if (getZoomStyle() == ZoomStyle.SEEKBAR) {
-          zoomSlider.setVisibility(View.VISIBLE);
-          zoomSlider.setOnSeekBarChangeListener(seekListener);
-        }
+
+        // Enable pinch and slider zoom by default
+        previewStack.setOnTouchListener(
+                new View.OnTouchListener() {
+                  @Override
+                  public boolean onTouch(View v, MotionEvent event) {
+                    return (scaleDetector.onTouchEvent(event));
+                  }
+                });
+        zoomSlider.setVisibility(View.VISIBLE);
+        zoomSlider.setOnSeekBarChangeListener(seekListener);
       } else {
         previewStack.setOnTouchListener(null);
         zoomSlider.setVisibility(View.GONE);
@@ -799,74 +802,32 @@ public class CameraFragment extends Fragment
     ctlr.setCameraViews(cameraViews);
   }
 
-  // based on https://goo.gl/3IUM8K
-
-  private void changeMenuIconAnimation(
-          final FloatingActionMenu menu) {
-    AnimatorSet set = new AnimatorSet();
-    final ImageView v = menu.getMenuIconView();
-    ObjectAnimator scaleOutX =
-            ObjectAnimator.ofFloat(v, "scaleX", 1.0f, 0.2f);
-    ObjectAnimator scaleOutY =
-            ObjectAnimator.ofFloat(v, "scaleY", 1.0f, 0.2f);
-    ObjectAnimator scaleInX =
-            ObjectAnimator.ofFloat(v, "scaleX", 0.2f, 1.0f);
-    ObjectAnimator scaleInY =
-            ObjectAnimator.ofFloat(v, "scaleY", 0.2f, 1.0f);
-
-    scaleOutX.setDuration(50);
-    scaleOutY.setDuration(50);
-
-    scaleInX.setDuration(150);
-    scaleInY.setDuration(150);
-    scaleInX.addListener(new AnimatorListenerAdapter() {
-      @Override
-      public void onAnimationStart(Animator animation) {
-        v.setImageResource(menu.isOpened()
-                ? R.drawable.cwac_cam2_ic_action_settings
-                : R.drawable.cwac_cam2_ic_close);
-        // yes, that seems backwards, but it works
-        // presumably, opened state not yet toggled
-      }
-    });
-
-    set.play(scaleOutX).with(scaleOutY);
-    set.play(scaleInX).with(scaleInY).after(scaleOutX);
-    set.setInterpolator(new OvershootInterpolator(2));
-    menu.setIconToggleAnimatorSet(set);
-  }
-
-  private ZoomStyle getZoomStyle() {
-    ZoomStyle result =
-            (ZoomStyle) getArguments().getSerializable(ARG_ZOOM_STYLE);
-
-    if (result == null) {
-      result = ZoomStyle.NONE;
-    }
-
-    return (result);
-  }
-
+  float finalScaleFactor = 1.0f;
   private ScaleGestureDetector.OnScaleGestureListener scaleListener =
           new ScaleGestureDetector.SimpleOnScaleGestureListener() {
-            @Override
-            public void onScaleEnd(ScaleGestureDetector detector) {
-              float scale = detector.getScaleFactor();
-              int delta;
 
-              if (scale > 1.0f) {
-                delta = PINCH_ZOOM_DELTA;
-              } else if (scale < 1.0f) {
-                delta = -1 * PINCH_ZOOM_DELTA;
-              } else {
-                return;
-              }
+            @Override
+            public boolean onScale(ScaleGestureDetector detector) {
+              float scaleFactor = detector.getScaleFactor();
+              finalScaleFactor *= scaleFactor;
+              //making sure the scale is within the limits
+//              scaleFactor = Math.max(0.1f, Math.min(scaleFactor, 2.0f));
+//
+//
+//              if (scale > 1.0f) {
+////                delta = PINCH_ZOOM_DELTA;
+//              } else if (scale < 1.0f) {
+////                delta = -1 * PINCH_ZOOM_DELTA;
+//              } else {
+//                return false;
+//              }
 
               if (!inSmoothPinchZoom) {
-                if (ctlr.changeZoom(delta)) {
+                if (ctlr.changeZoom(scaleFactor)) {
                   inSmoothPinchZoom = true;
                 }
               }
+              return true;
             }
           };
 

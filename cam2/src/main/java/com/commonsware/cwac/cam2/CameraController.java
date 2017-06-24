@@ -25,6 +25,7 @@ import android.graphics.SurfaceTexture;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.ResultReceiver;
+import android.util.Log;
 import android.view.View;
 import com.commonsware.cwac.cam2.plugin.FlashModePlugin;
 import com.commonsware.cwac.cam2.plugin.FocusModePlugin;
@@ -263,8 +264,8 @@ public class CameraController implements CameraView.StateCallback {
     this.currentCamera=currentCamera;
   }
 
-  public boolean changeZoom(int delta) {
-    zoomLevel+=delta;
+  public boolean changeZoom(float deltaFactor) {
+    zoomLevel = (int)((100 + zoomLevel) * deltaFactor) - 100;
 
     return (handleZoom());
   }

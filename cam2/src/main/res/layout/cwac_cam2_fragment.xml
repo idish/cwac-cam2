@@ -59,7 +59,46 @@
         android:padding="4dp"
         android:visibility="gone" />
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:gravity="center_vertical"
+        android:layout_above="@+id/cameraRowLayout"
+        android:layout_centerHorizontal="true">
+
+        <android.support.v7.widget.AppCompatImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            app:srcCompat="@drawable/ic_remove_white_32dp_vector"/>
+
+        <!-- Setting marginTop to hacky center vertically with the texts -->
+        <SeekBar
+            android:id="@+id/cwac_cam2_zoom"
+            android:thumb="@drawable/zoom_slider_thumb"
+            android:progressDrawable="@drawable/zoom_slider_progress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:max="100" />
+
+        <android.support.v7.widget.AppCompatImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            app:srcCompat="@drawable/ic_add_white_32dp_vector"/>
+
+        <!--<TextView-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_marginLeft="8dp"-->
+            <!--android:textColor="@android:color/white"-->
+            <!--android:textSize="32sp"-->
+            <!--android:text="+"/>-->
+    </LinearLayout>
     <RelativeLayout
+        android:id="@+id/cameraRowLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@+id/camera_mode_switcher_layout"
@@ -124,16 +163,6 @@
 
             </LinearLayout>
         </LinearLayout>
-
-        <SeekBar
-            android:id="@+id/cwac_cam2_zoom"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:layout_toLeftOf="@id/cwac_cam2_picture_btn"
-            android:layout_toStartOf="@id/cwac_cam2_picture_btn"
-            android:max="100"
-            android:visibility="gone" />
 
     </RelativeLayout>
 
