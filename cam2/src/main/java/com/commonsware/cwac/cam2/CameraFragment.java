@@ -580,8 +580,8 @@ public class CameraFragment extends Fragment
       imgSwitchFacing.setEnabled(canSwitchSources());
       mCameraBtn.setEnabled(true);
       zoomSlider = (SeekBar) getView().findViewById(R.id.cwac_cam2_zoom);
-      zoomSlider.getProgressDrawable().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN);
-      zoomSlider.getThumb().setColorFilter(Color.YELLOW, PorterDuff.Mode.SRC_IN);
+//      zoomSlider.getProgressDrawable().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN);
+//      zoomSlider.getThumb().setColorFilter(Color.YELLOW, PorterDuff.Mode.SRC_IN);
 
       int timerDuration = getArguments().getInt(ARG_TIMER_DURATION);
 
@@ -626,6 +626,7 @@ public class CameraFragment extends Fragment
           CameraEngine.SmoothZoomCompletedEvent event) {
     inSmoothPinchZoom = false;
     zoomSlider.setEnabled(true);
+    zoomSlider.setProgress(ctlr.getZoomLevel());
   }
 
   protected void performCameraAction() {
@@ -802,30 +803,17 @@ public class CameraFragment extends Fragment
     ctlr.setCameraViews(cameraViews);
   }
 
-  float finalScaleFactor = 1.0f;
   private ScaleGestureDetector.OnScaleGestureListener scaleListener =
           new ScaleGestureDetector.SimpleOnScaleGestureListener() {
 
             @Override
             public boolean onScale(ScaleGestureDetector detector) {
               float scaleFactor = detector.getScaleFactor();
-              finalScaleFactor *= scaleFactor;
-              //making sure the scale is within the limits
-//              scaleFactor = Math.max(0.1f, Math.min(scaleFactor, 2.0f));
-//
-//
-//              if (scale > 1.0f) {
-////                delta = PINCH_ZOOM_DELTA;
-//              } else if (scale < 1.0f) {
-////                delta = -1 * PINCH_ZOOM_DELTA;
-//              } else {
-//                return false;
-//              }
-
               if (!inSmoothPinchZoom) {
                 if (ctlr.changeZoom(scaleFactor)) {
                   inSmoothPinchZoom = true;
                 }
+                zoomSlider.setProgress(ctlr.getZoomLevel());
               }
               return true;
             }

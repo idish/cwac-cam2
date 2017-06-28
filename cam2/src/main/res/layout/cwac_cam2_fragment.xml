@@ -73,7 +73,6 @@
             android:layout_weight="0"
             app:srcCompat="@drawable/ic_remove_white_32dp_vector"/>
 
-        <!-- Setting marginTop to hacky center vertically with the texts -->
         <SeekBar
             android:id="@+id/cwac_cam2_zoom"
             android:thumb="@drawable/zoom_slider_thumb"
@@ -89,13 +88,6 @@
             android:layout_weight="0"
             app:srcCompat="@drawable/ic_add_white_32dp_vector"/>
 
-        <!--<TextView-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_marginLeft="8dp"-->
-            <!--android:textColor="@android:color/white"-->
-            <!--android:textSize="32sp"-->
-            <!--android:text="+"/>-->
     </LinearLayout>
     <RelativeLayout
         android:id="@+id/cameraRowLayout"

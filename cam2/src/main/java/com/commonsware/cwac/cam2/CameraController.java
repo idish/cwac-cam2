@@ -270,6 +270,10 @@ public class CameraController implements CameraView.StateCallback {
     return (handleZoom());
   }
 
+  public int getZoomLevel() {
+    return zoomLevel;
+  }
+
   public boolean setZoom(int zoomLevel) {
     this.zoomLevel=zoomLevel;
 
