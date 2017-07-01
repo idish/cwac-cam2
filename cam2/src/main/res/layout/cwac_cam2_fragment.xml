@@ -60,6 +60,9 @@
         android:visibility="gone" />
 
     <LinearLayout
+        tools:visibility="visible"
+        android:id="@+id/zoom_slider_layout"
+        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
@@ -93,7 +96,8 @@
         android:id="@+id/cameraRowLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/camera_mode_switcher_layout"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="50dp"
         android:layout_marginLeft="6dp"
         android:layout_marginRight="6dp">
 
@@ -171,15 +175,12 @@
             android:layout_gravity="bottom|center_horizontal"
             app:srcCompat="@drawable/ic_my_up_triangle_vector" />
 
-
         <android.support.v7.widget.RecyclerView
             android:id="@+id/camera_mode_switcher_rv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingBottom="12dp"
-            android:paddingTop="12dp">
-
-        </android.support.v7.widget.RecyclerView>
+            android:paddingTop="520dp"
+            android:paddingBottom="12dp" />
 
     </FrameLayout>
 </RelativeLayout>
