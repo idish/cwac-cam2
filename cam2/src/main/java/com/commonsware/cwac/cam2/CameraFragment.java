@@ -293,7 +293,7 @@ public class CameraFragment extends Fragment
     // Recycler view used to switch camera types (i.e: photo or video)
     mCameraModeSwitcherRV =
             (RecyclerView) v.findViewById(R.id.camera_mode_switcher_rv);
-
+    mCameraModeSwitcherRV.
     mLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
     mCameraModeSwitcherRV.setLayoutManager(mLayoutManager);
       // Horizontal
@@ -818,7 +818,7 @@ public class CameraFragment extends Fragment
                 mZoomSliderLayout.getHandler().removeCallbacks(mZoomSliderGoneRunnable);
                 mZoomSliderLayout.getHandler().postDelayed(mZoomSliderGoneRunnable, 3000);
               }
-              return true;
+              return false;
             }
           };
 
