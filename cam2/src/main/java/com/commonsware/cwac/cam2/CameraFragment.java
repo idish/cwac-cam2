@@ -19,8 +19,16 @@
 
 package com.commonsware.cwac.cam2;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.app.ActionBar;
 import android.app.Fragment;
+import android.content.Context;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -37,15 +45,17 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.OvershootInterpolator;
 import android.widget.Chronometer;
+import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.github.clans.fab.FloatingActionMenu;
+
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -90,7 +100,6 @@ public class CameraFragment extends Fragment
   private Chronometer chronometer;
   private ReverseChronometer reverseChronometer;
 
-  private LinearLayout mZoomSliderLayout;
   // At default we are gonna take a picture
   private boolean mIsVideoCameraSelected = false;
 
@@ -293,7 +302,6 @@ public class CameraFragment extends Fragment
     // Recycler view used to switch camera types (i.e: photo or video)
     mCameraModeSwitcherRV =
             (RecyclerView) v.findViewById(R.id.camera_mode_switcher_rv);
-    mCameraModeSwitcherRV.
     mLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
     mCameraModeSwitcherRV.setLayoutManager(mLayoutManager);
       // Horizontal
@@ -572,8 +580,6 @@ public class CameraFragment extends Fragment
       imgSwitchFacing.setEnabled(canSwitchSources());
       mCameraBtn.setEnabled(true);
       zoomSlider = (SeekBar) getView().findViewById(R.id.cwac_cam2_zoom);
-      mZoomSliderLayout = (LinearLayout) getView().findViewById(R.id.zoom_slider_layout);
-//      mZoomSliderLayout.getLayoutTransition().enableTransitionType(LayoutTransition.CHANGING);
 //      zoomSlider.getProgressDrawable().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN);
 //      zoomSlider.getThumb().setColorFilter(Color.YELLOW, PorterDuff.Mode.SRC_IN);
 
@@ -597,9 +603,11 @@ public class CameraFragment extends Fragment
                     return (scaleDetector.onTouchEvent(event));
                   }
                 });
+        zoomSlider.setVisibility(View.VISIBLE);
         zoomSlider.setOnSeekBarChangeListener(seekListener);
       } else {
         previewStack.setOnTouchListener(null);
+        zoomSlider.setVisibility(View.GONE);
       }
       if (isVideoFragment()) {
           // NOTE: If its a video we start recording automatically @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -617,6 +625,8 @@ public class CameraFragment extends Fragment
   public void onEventMainThread(
           CameraEngine.SmoothZoomCompletedEvent event) {
     inSmoothPinchZoom = false;
+    zoomSlider.setEnabled(true);
+    zoomSlider.setProgress(ctlr.getZoomLevel());
   }
 
   protected void performCameraAction() {
@@ -793,13 +803,6 @@ public class CameraFragment extends Fragment
     ctlr.setCameraViews(cameraViews);
   }
 
-  private Runnable mZoomSliderGoneRunnable = new Runnable() {
-    @Override
-    public void run() {
-      mZoomSliderLayout.setVisibility(View.GONE);
-    }
-  };
-
   private ScaleGestureDetector.OnScaleGestureListener scaleListener =
           new ScaleGestureDetector.SimpleOnScaleGestureListener() {
 
@@ -811,14 +814,8 @@ public class CameraFragment extends Fragment
                   inSmoothPinchZoom = true;
                 }
                 zoomSlider.setProgress(ctlr.getZoomLevel());
-
-
-                // Reset zoom slider gone visibility delay
-                mZoomSliderLayout.setVisibility(View.VISIBLE);
-                mZoomSliderLayout.getHandler().removeCallbacks(mZoomSliderGoneRunnable);
-                mZoomSliderLayout.getHandler().postDelayed(mZoomSliderGoneRunnable, 3000);
               }
-              return false;
+              return true;
             }
           };
 
@@ -832,10 +829,6 @@ public class CameraFragment extends Fragment
                 if (ctlr.setZoom(progress)) {
                   seekBar.setEnabled(false);
                 }
-
-                // Reset zoom slider gone visibility delay
-                mZoomSliderLayout.getHandler().removeCallbacks(mZoomSliderGoneRunnable);
-                mZoomSliderLayout.getHandler().postDelayed(mZoomSliderGoneRunnable, 3000);
               }
             }
 
