@@ -338,6 +338,23 @@ public class CameraFragment extends Fragment
     mCameraModeSwitcherRV.setAdapter(mAdapter);
     mCameraModeSwitcherRV.setHasFixedSize(true);
     mCameraModeSwitcherRV.setNestedScrollingEnabled(false);
+    mCameraModeSwitcherRV.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
+      @Override
+      public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
+
+        return e.getPointerCount() > 1;
+      }
+
+      @Override
+      public void onTouchEvent(RecyclerView rv, MotionEvent e) {
+
+      }
+
+      @Override
+      public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+
+      }
+    });
     mCameraModeSwitcherRV.addOnScrollListener(new RecyclerView.OnScrollListener() {
 
         // Seems that there's a bug that the onScrolled is called on startup of the recyclerview and the snapView is not the center one
