@@ -57,7 +57,7 @@ public class CameraModeSwitcherAdapter extends RecyclerView.Adapter<CameraModeSw
 
         public CameraModeSwitcherViewHolder(View itemView) {
             super(itemView);
-            cameraModeTxtView = (TextView) itemView.findViewById(R.id.camera_mode_txt);
+            cameraModeTxtView = itemView.findViewById(R.id.camera_mode_txt);
         }
     }
 }

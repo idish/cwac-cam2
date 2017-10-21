@@ -41,7 +41,6 @@ public class VideoRecorderActivity extends AbstractCameraActivity {
 
   public static final String[] PERMS={
     Manifest.permission.CAMERA,
-    Manifest.permission.WRITE_EXTERNAL_STORAGE,
     Manifest.permission.RECORD_AUDIO};
 
   @Override

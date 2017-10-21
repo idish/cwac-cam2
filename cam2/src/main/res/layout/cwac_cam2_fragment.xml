@@ -34,14 +34,15 @@
         android:id="@+id/chrono"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
+        android:layout_centerHorizontal="true"
         android:layout_alignParentTop="true"
-        android:layout_marginEnd="@dimen/cwac_cam2_fragment_chrono_margin"
-        android:layout_marginRight="@dimen/cwac_cam2_fragment_chrono_margin"
-        android:layout_marginTop="@dimen/cwac_cam2_fragment_chrono_margin"
-        android:background="@color/cwac_cam2_chrono_background"
-        android:padding="4dp"
+        android:textSize="18sp"
+        android:textColor="@android:color/white"
+        android:background="#40000000"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
+        android:paddingLeft="12dp"
+        android:paddingRight="12dp"
         android:visibility="gone"
         tools:visibility="visible" />
 
@@ -60,6 +61,8 @@
         android:visibility="gone" />
 
     <LinearLayout
+        android:id="@+id/cwac_cam2_zoom_layout"
+        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"

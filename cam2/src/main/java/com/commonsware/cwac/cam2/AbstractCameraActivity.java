@@ -495,7 +495,7 @@ abstract public class AbstractCameraActivity extends FragmentActivity {
 
     private final int value;
 
-    private Quality(int value) {
+    Quality(int value) {
       this.value=value;
     }
 
@@ -607,7 +607,7 @@ abstract public class AbstractCameraActivity extends FragmentActivity {
      * @return the builder, for further configuration
      */
     public T to(File f) {
-      return((T)to(Uri.fromFile(f)));
+      return to(Uri.fromFile(f));
     }
 
     /**

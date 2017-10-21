@@ -26,12 +26,14 @@ import android.animation.ObjectAnimator;
 import android.app.ActionBar;
 import android.app.Fragment;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.AppCompatImageView;
@@ -62,6 +64,8 @@ import java.util.LinkedList;
 
 import me.everything.android.ui.overscroll.OverScrollDecoratorHelper;
 
+import static com.commonsware.cwac.cam2.AbstractCameraActivity.EXTRA_FACING;
+
 /**
  * Fragment for displaying a camera preview, with hooks to allow
  * you (or the user) to take a picture.
@@ -80,6 +84,7 @@ public class CameraFragment extends Fragment
   protected static final String ARG_CHRONOTYPE = "chronotype";
   protected static final String ARG_RULE_OF_THIRDS = "ruleOfThirds";
   protected static final String ARG_TIMER_DURATION = "timerDuration";
+
   private static final int PINCH_ZOOM_DELTA = 20;
   protected CameraController ctlr;
   private ViewGroup previewStack;
@@ -97,6 +102,7 @@ public class CameraFragment extends Fragment
   private ScaleGestureDetector scaleDetector;
   private boolean inSmoothPinchZoom = false;
   private SeekBar zoomSlider;
+  private View zoomSliderLayout;
   private Chronometer chronometer;
   private ReverseChronometer reverseChronometer;
 
@@ -112,9 +118,11 @@ public class CameraFragment extends Fragment
    */
   public static class CameraModeChanged {
     public final boolean shouldChangeToPictureMode;
+    public final boolean isFacingBack;
 
-    public CameraModeChanged(boolean shouldChangeToPictureMode) {
+    public CameraModeChanged(boolean shouldChangeToPictureMode, boolean isFacingBack) {
       this.shouldChangeToPictureMode = shouldChangeToPictureMode;
+      this.isFacingBack = isFacingBack;
     }
   }
 
@@ -289,19 +297,21 @@ public class CameraFragment extends Fragment
             inflater.inflate(R.layout.cwac_cam2_fragment, container, false);
 
     previewStack =
-            (ViewGroup) v.findViewById(R.id.cwac_cam2_preview_stack);
+            v.findViewById(R.id.cwac_cam2_preview_stack);
 
     progress = v.findViewById(R.id.cwac_cam2_progress);
     mCameraBtn =
-            (ImageView) v.findViewById(R.id.cwac_cam2_picture_btn);
+            v.findViewById(R.id.cwac_cam2_picture_btn);
     imgSwitchFacing =
-            (AppCompatImageView) v.findViewById(R.id.cwac_cam2_switch_camera_btn);
+            v.findViewById(R.id.cwac_cam2_switch_camera_btn);
     imgFlash =
-            (AppCompatImageView) v.findViewById(R.id.cwac_cam2_flash_btn);
-
+            v.findViewById(R.id.cwac_cam2_flash_btn);
+    chronometer = v.findViewById(R.id.chrono);
+    // Works only when setting the text dynamically
+    chronometer.setText("00:00:00");
     // Recycler view used to switch camera types (i.e: photo or video)
     mCameraModeSwitcherRV =
-            (RecyclerView) v.findViewById(R.id.camera_mode_switcher_rv);
+            v.findViewById(R.id.camera_mode_switcher_rv);
     mLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
     mCameraModeSwitcherRV.setLayoutManager(mLayoutManager);
       // Horizontal
@@ -362,7 +372,7 @@ public class CameraFragment extends Fragment
           if (isFirstTimeCalled) {
               // gray the non centered view (pretty shit code)
               View otherView = mCameraModeSwitcherRV.getLayoutManager().findViewByPosition(1);
-              TextView txtView = (TextView) otherView.findViewById(R.id.camera_mode_txt);
+              TextView txtView = otherView.findViewById(R.id.camera_mode_txt);
               txtView.setTextColor(ContextCompat.getColor(getActivity(), R.color.cwac_cam2_text_light_disabled));
               isFirstTimeCalled = false;
           }
@@ -374,13 +384,13 @@ public class CameraFragment extends Fragment
                   // dehighlight the previously highlighted view
                   View prevView = mCameraModeSwitcherRV.getLayoutManager().findViewByPosition(prevCenterPos);
                   if (prevView != null) {
-                      TextView txtView = (TextView) prevView.findViewById(R.id.camera_mode_txt);
+                      TextView txtView = prevView.findViewById(R.id.camera_mode_txt);
                       txtView.setTextColor(ContextCompat.getColor(getActivity(), R.color.cwac_cam2_text_light_disabled));
                   }
 
                   // highlight view in the middle
                   if (centerView != null) {
-                      TextView txtView = (TextView) centerView.findViewById(R.id.camera_mode_txt);
+                      TextView txtView = centerView.findViewById(R.id.camera_mode_txt);
                       txtView.setTextColor(ContextCompat.getColor(getActivity(), R.color.cwac_cam2_text_light_enabled));
                   }
 
@@ -388,12 +398,13 @@ public class CameraFragment extends Fragment
 
                 if (centerPos == 0) {
                     mCameraBtn.setImageResource(R.drawable.camera_pic_effect);
-
+                    chronometer.setVisibility(View.GONE);
                     // Reset to gonna take a picture
                     mIsVideoCameraSelected = false;
                 } else if (centerPos == 1) {
                     mCameraBtn.setImageResource(R.drawable.camera_vid_effect);
                     mIsVideoCameraSelected = true;
+                    chronometer.setVisibility(View.VISIBLE);
                 }
               }
           }
@@ -405,16 +416,16 @@ public class CameraFragment extends Fragment
     mCurrentFlashMode = FlashMode.OFF;
 
     mSafeGalleryImgView =
-            (ImageView) v.findViewById(R.id.cwac_cam2_gallery_btn);
+            v.findViewById(R.id.cwac_cam2_gallery_btn);
+
     reverseChronometer =
-            (ReverseChronometer) v.findViewById(R.id.rchrono);
+            v.findViewById(R.id.rchrono);
 
 
     if (isVideoFragment()) {
       mIsVideoCameraSelected = true;
       mCameraBtn.setImageResource(R.drawable.camera_vid_effect);
       mCameraModeSwitcherRV.setVisibility(View.INVISIBLE);
-      chronometer = (Chronometer) v.findViewById(R.id.chrono);
     }
 //    else {
 //      fabVideo.setOnClickListener(new View.OnClickListener() {
@@ -440,6 +451,15 @@ public class CameraFragment extends Fragment
         imgSwitchFacing.setEnabled(false);
 
         try {
+          // Flip the facing, necessary because we access EXTRA_FACING to detect camera facing in runtime
+          Facing facing = (Facing) getActivity().getIntent().getSerializableExtra(EXTRA_FACING);
+          Facing newFacing;
+          if (facing.isFront()) {
+              newFacing = Facing.BACK;
+          } else {
+              newFacing = Facing.FRONT;
+          }
+          getActivity().getIntent().putExtra(EXTRA_FACING, newFacing);
           ctlr.switchCamera();
         } catch (Exception e) {
           ctlr.postError(ErrorConstants.ERROR_SWITCHING_CAMERAS, e);
@@ -579,7 +599,8 @@ public class CameraFragment extends Fragment
       progress.setVisibility(View.GONE);
       imgSwitchFacing.setEnabled(canSwitchSources());
       mCameraBtn.setEnabled(true);
-      zoomSlider = (SeekBar) getView().findViewById(R.id.cwac_cam2_zoom);
+      zoomSlider = getView().findViewById(R.id.cwac_cam2_zoom);
+      zoomSliderLayout = getView().findViewById(R.id.cwac_cam2_zoom_layout);
 //      zoomSlider.getProgressDrawable().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN);
 //      zoomSlider.getThumb().setColorFilter(Color.YELLOW, PorterDuff.Mode.SRC_IN);
 
@@ -609,6 +630,7 @@ public class CameraFragment extends Fragment
         previewStack.setOnTouchListener(null);
         zoomSlider.setVisibility(View.GONE);
       }
+
       if (isVideoFragment()) {
           // NOTE: If its a video we start recording automatically @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         performCameraAction();
@@ -635,7 +657,7 @@ public class CameraFragment extends Fragment
           toggleVideoRecording();
         } else {
           // This would start recording video automatically
-          ctlr.getEngine().getBus().post(new CameraModeChanged(false));
+          ctlr.getEngine().getBus().post(new CameraModeChanged(false, isCameraFacingBack()));
         }
     } else {
       // This is just for sanity, because we always at PICTURE mode fragment, unless we're in the middle of recording a video
@@ -643,6 +665,15 @@ public class CameraFragment extends Fragment
         takePicture();
       }
     }
+  }
+
+  /**
+   * Checks whether the camera is facing back or front, There's no easy way to determine it via any cwac-cam2 object
+   * (CameraController, CameraEngine, etc..) and no, getCameraNumber is not the integer of the camera-id, but something cam2 based
+   */
+  public boolean isCameraFacingBack() {
+      Facing facing = (Facing) getActivity().getIntent().getSerializableExtra(EXTRA_FACING);
+      return !facing.isFront();
   }
 
   private void takePicture() {
@@ -751,6 +782,19 @@ public class CameraFragment extends Fragment
   }
 
   private void configureChronometer() {
+    chronometer.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener(){
+      @Override
+      public void onChronometerTick(Chronometer cArg) {
+        long time = SystemClock.elapsedRealtime() - cArg.getBase();
+        int h   = (int)(time /3600000);
+        int m = (int)(time - h*3600000)/60000;
+        int s= (int)(time - h*3600000- m*60000)/1000 ;
+        String hh = h < 10 ? "0"+h: h+"";
+        String mm = m < 10 ? "0"+m: m+"";
+        String ss = s < 10 ? "0"+s: s+"";
+        cArg.setText(hh+":"+mm+":"+ss);
+      }
+    });
     chronometer.setBase(SystemClock.elapsedRealtime());
 
     if (getChronoType() == ChronoType.COUNT_UP) {
@@ -803,11 +847,28 @@ public class CameraFragment extends Fragment
     ctlr.setCameraViews(cameraViews);
   }
 
+  private int ZOOM_SLIDER_VISIBILITY_TIME_GONE_MS = 3000;
+
+
+  private Runnable zoomSliderGoneVisibilityRunnable = new Runnable() {
+    @Override
+    public void run() {
+      zoomSliderLayout.setVisibility(View.GONE);
+    }
+  };
+
+
   private ScaleGestureDetector.OnScaleGestureListener scaleListener =
           new ScaleGestureDetector.SimpleOnScaleGestureListener() {
 
             @Override
             public boolean onScale(ScaleGestureDetector detector) {
+              zoomSliderLayout.setVisibility(View.VISIBLE);
+
+              // Reset the countdown to the gone visibility timer
+              zoomSliderLayout.removeCallbacks(zoomSliderGoneVisibilityRunnable);
+              zoomSliderLayout.postDelayed(zoomSliderGoneVisibilityRunnable, ZOOM_SLIDER_VISIBILITY_TIME_GONE_MS);
+
               float scaleFactor = detector.getScaleFactor();
               if (!inSmoothPinchZoom) {
                 if (ctlr.changeZoom(scaleFactor)) {
@@ -826,6 +887,12 @@ public class CameraFragment extends Fragment
                                           int progress,
                                           boolean fromUser) {
               if (fromUser) {
+                zoomSliderLayout.setVisibility(View.VISIBLE);
+
+                // Reset the countdown to the gone visibility timer
+                zoomSliderLayout.removeCallbacks(zoomSliderGoneVisibilityRunnable);
+                zoomSliderLayout.postDelayed(zoomSliderGoneVisibilityRunnable, ZOOM_SLIDER_VISIBILITY_TIME_GONE_MS);
+
                 if (ctlr.setZoom(progress)) {
                   seekBar.setEnabled(false);
                 }
