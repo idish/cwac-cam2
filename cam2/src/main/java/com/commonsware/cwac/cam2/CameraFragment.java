@@ -49,6 +49,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.OvershootInterpolator;
 import android.widget.Chronometer;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
@@ -87,6 +88,7 @@ public class CameraFragment extends Fragment
 
   private static final int PINCH_ZOOM_DELTA = 20;
   protected CameraController ctlr;
+  private FrameLayout mCaptureEffectOverlayLayout;
   private ViewGroup previewStack;
   private ImageView mCameraBtn;
   private AppCompatImageView imgSwitchFacing;
@@ -235,6 +237,15 @@ public class CameraFragment extends Fragment
       }
 
       if (mCameraBtn != null) {
+        // Start a "capture" effect
+        mCaptureEffectOverlayLayout.setVisibility(View.VISIBLE);
+        mCaptureEffectOverlayLayout.postDelayed(new Runnable() {
+          @Override
+          public void run() {
+            mCaptureEffectOverlayLayout.setVisibility(View.GONE);
+          }
+        }, 60);
+
         mCameraBtn.setEnabled(true);
         imgSwitchFacing.setEnabled(canSwitchSources());
       }
@@ -296,6 +307,7 @@ public class CameraFragment extends Fragment
     View v =
             inflater.inflate(R.layout.cwac_cam2_fragment, container, false);
 
+    mCaptureEffectOverlayLayout = v.findViewById(R.id.capture_effect_overlay_layout);
     previewStack =
             v.findViewById(R.id.cwac_cam2_preview_stack);
 
@@ -720,7 +732,10 @@ public class CameraFragment extends Fragment
 //          R.color.cwac_cam2_video_fab);
 //        mCameraBtn.setColorPressedResId(
 //          R.color.cwac_cam2_video_fab_pressed);
-      imgSwitchFacing.setEnabled(false);
+      imgSwitchFacing.setVisibility(View.INVISIBLE);
+      imgFlash.setVisibility(View.INVISIBLE);
+      mSafeGalleryImgView.setVisibility(View.INVISIBLE);
+      mCameraModeSwitcherRV.setVisibility(View.INVISIBLE);
       configureChronometer();
     } catch (Exception e) {
       Log.e(getClass().getSimpleName(),
