@@ -55,6 +55,7 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
 
 import org.greenrobot.eventbus.Subscribe;
@@ -97,7 +98,7 @@ public class CameraFragment extends Fragment
   private RecyclerView mCameraModeSwitcherRV;
   RecyclerView.LayoutManager mLayoutManager;
   private CameraModeSwitcherAdapter mAdapter;
-  public ImageView mSafeGalleryImgView;
+  public FloatingActionButton mFinishBtn;
   private View progress;
   private boolean isVideoRecording = false;
   private boolean mirrorPreview = false;
@@ -427,8 +428,9 @@ public class CameraFragment extends Fragment
     // set current default flash mode to off
     mCurrentFlashMode = FlashMode.OFF;
 
-    mSafeGalleryImgView =
-            v.findViewById(R.id.cwac_cam2_gallery_btn);
+    mFinishBtn =
+            v.findViewById(R.id.done_fab_btn);
+    mFinishBtn.hide(false);
 
     reverseChronometer =
             v.findViewById(R.id.rchrono);
@@ -608,6 +610,12 @@ public class CameraFragment extends Fragment
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void onEventMainThread(CameraEngine.OpenedEvent event) {
     if (event.exception == null) {
+      mFinishBtn.postDelayed(new Runnable() {
+        @Override
+        public void run() {
+          mFinishBtn.show(true);
+        }
+      }, 300);
       progress.setVisibility(View.GONE);
       imgSwitchFacing.setEnabled(canSwitchSources());
       mCameraBtn.setEnabled(true);
@@ -734,7 +742,7 @@ public class CameraFragment extends Fragment
 //          R.color.cwac_cam2_video_fab_pressed);
       imgSwitchFacing.setVisibility(View.INVISIBLE);
       imgFlash.setVisibility(View.INVISIBLE);
-      mSafeGalleryImgView.setVisibility(View.INVISIBLE);
+      mFinishBtn.hide(true);
       mCameraModeSwitcherRV.setVisibility(View.INVISIBLE);
       configureChronometer();
     } catch (Exception e) {

@@ -9,4 +9,14 @@
   <color name="cwac_cam2_chrono_background">#80808080</color>
   <color name="cwac_cam2_text_light_disabled">#4CFFFFFF</color>
   <color name="cwac_cam2_text_light_enabled">#FFFFFF</color>
+
+  <style name="MenuButtonsStyle">
+    <item name="fab_size">mini</item>
+    <item name="fab_showAnimation">@anim/jump_from_down</item>
+    <item name="fab_hideAnimation">@anim/jump_to_down</item>
+    <item name="fab_shadowColor">#444</item>
+    <item name="fab_colorNormal">#FFB805</item>
+    <item name="fab_colorPressed">#F2AB00</item>
+    <item name="fab_colorRipple">#D99200</item>
+  </style>
 </resources>
