@@ -1,21 +1,19 @@
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven' // ADD THIS
 
-group='com.github.idish'
-
 dependencies {
-    compile 'com.github.clans:fab:1.6.4'
-    compile 'org.greenrobot:eventbus:3.0.0'
-    compile 'com.android.support:appcompat-v7:27.0.0'
-    compile 'com.android.support:recyclerview-v7:27.0.0'
-    compile 'me.everything:overscroll-decor-android:1.0.4'
+    implementation 'com.github.clans:fab:1.6.4'
+    implementation 'org.greenrobot:eventbus:3.0.0'
+    implementation 'com.android.support:appcompat-v7:27.1.0'
+    implementation 'com.android.support:recyclerview-v7:27.1.0'
+    implementation 'me.everything:overscroll-decor-android:1.0.4'
     // Used for android.app.FragmentPagerAdapter (native support)
-    compile 'com.android.support:support-v13:27.0.0'
+    implementation 'com.android.support:support-v13:27.1.0'
 }
 
 android {
     compileSdkVersion 27
-    buildToolsVersion "27.0.0"
+    buildToolsVersion "27.0.3"
 
     defaultConfig {
         minSdkVersion 15
@@ -27,71 +25,5 @@ android {
 
     packagingOptions {
         exclude 'LICENSE.txt' // required for no good reason...
-    }
-}
-
-android.libraryVariants.all { variant ->
-    task("generate${variant.name.capitalize()}Javadoc", type: Javadoc) {
-        title = "$name $version API"
-        // description = ''
-        source = variant.javaCompile.source
-        classpath = files(variant.javaCompile.classpath.files, project.android.getBootClasspath())
-        options {
-            links "http://docs.oracle.com/javase/7/docs/api/"
-            linksOffline "http://d.android.com/reference","${android.sdkDirectory}/docs/reference"
-        }
-        exclude '**/BuildConfig.java'
-        exclude '**/R.java'
-        exclude 'com/android/**'
-    }
-}
-
-if (project.hasProperty('PUBLISH_GROUP_ID')) {
-    // from http://stackoverflow.com/a/19484146/115145
-
-    android.libraryVariants.all { variant ->
-        def name = variant.buildType.name
-        if (name.equals(com.android.builder.core.BuilderConstants.DEBUG)) {
-            return; // Skip debug builds.
-        }
-        def task = project.tasks.create "jar${name.capitalize()}", Jar
-        task.dependsOn variant.javaCompile
-        task.from variant.javaCompile.destinationDir
-        task.baseName = "cwac-${PUBLISH_ARTIFACT_ID}"
-        task.version = PUBLISH_VERSION
-        task.exclude('com/commonsware/cwac/**/BuildConfig.**')
-    }
-
-    task sourcesJar(type: Jar) {
-        from android.sourceSets.main.java.srcDirs
-        classifier = 'sources'
-    }
-
-    task javadoc(type: Javadoc) {
-        failOnError  false
-        source = android.sourceSets.main.java.sourceFiles
-        classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-    }
-
-    task javadocJar(type: Jar, dependsOn: javadoc) {
-        classifier = 'javadoc'
-        from javadoc.destinationDir
-    }
-
-    artifacts {
-        archives sourcesJar
-        archives javadocJar
-    }
-
-    apply plugin: 'maven'
-
-    uploadArchives {
-        repositories.mavenDeployer {
-            pom.groupId = PUBLISH_GROUP_ID
-            pom.artifactId = PUBLISH_ARTIFACT_ID
-            pom.version = PUBLISH_VERSION
-
-            repository(url: LOCAL_REPO)
-        }
     }
 }
