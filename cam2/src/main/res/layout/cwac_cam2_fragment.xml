@@ -50,8 +50,57 @@
         android:paddingBottom="4dp"
         android:paddingLeft="12dp"
         android:paddingRight="12dp"
-        android:visibility="gone"
+        android:visibility="invisible"
         tools:visibility="visible" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:baselineAligned="false"
+        android:layout_marginTop="16dp"
+        android:layout_toRightOf="@+id/chrono">
+
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center">
+
+            <android.support.v7.widget.AppCompatImageView
+                android:id="@+id/cwac_cam2_switch_camera_btn"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:clickable="true"
+                app:srcCompat="@drawable/ic_noun_switch_camera"
+                android:focusable="true" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_toLeftOf="@+id/chrono">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:layout_weight="1">
+
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/cwac_cam2_flash_btn"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:clickable="true"
+            app:srcCompat="@drawable/ic_noun_flash_off"
+            android:focusable="true" />
+
+    </LinearLayout>
+    </LinearLayout>
+
 
     <com.commonsware.cwac.cam2.ReverseChronometer
         android:id="@+id/rchrono"
@@ -113,7 +162,8 @@
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:clickable="true"
-            android:src="@drawable/camera_pic_effect" />
+            android:src="@drawable/camera_pic_effect"
+            android:focusable="true" />
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -121,13 +171,12 @@
             android:layout_centerVertical="true"
             android:layout_toLeftOf="@+id/cwac_cam2_picture_btn">
 
-            <com.github.clans.fab.FloatingActionButton
-                android:id="@+id/done_fab_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+            <android.support.v7.widget.AppCompatImageView
+                android:id="@+id/back_imgview"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:layout_centerHorizontal="true"
-                android:src="@drawable/ic_done_white_24dp"
-                style="@style/MenuButtonsStyle" />
+                app:srcCompat="@drawable/ic_noun_back" />
 
             <!--<android.support.v7.widget.AppCompatImageView-->
                 <!--android:id="@+id/cwac_cam2_gallery_btn"-->
@@ -137,42 +186,6 @@
                 <!--app:srcCompat="@drawable/ic_camera_done_edited" />-->
         </RelativeLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_toRightOf="@+id/cwac_cam2_picture_btn">
-
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center">
-
-                <android.support.v7.widget.AppCompatImageView
-                    android:id="@+id/cwac_cam2_flash_btn"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:clickable="true"
-                    app:srcCompat="@drawable/ic_flash_on_vector" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center">
-
-                <android.support.v7.widget.AppCompatImageView
-                    android:id="@+id/cwac_cam2_switch_camera_btn"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:clickable="true"
-                    app:srcCompat="@drawable/ic_switch_camera_vector" />
-
-            </LinearLayout>
-        </LinearLayout>
 
     </RelativeLayout>
 
@@ -183,7 +196,6 @@
         android:layout_alignParentBottom="true">
 
         <android.support.v7.widget.AppCompatImageView
-            android:id="@+id/upArrow"
             android:layout_width="12dp"
             android:layout_height="6dp"
             android:layout_gravity="bottom|center_horizontal"

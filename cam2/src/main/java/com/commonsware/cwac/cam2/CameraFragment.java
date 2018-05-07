@@ -19,22 +19,13 @@
 
 package com.commonsware.cwac.cam2;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
 import android.app.ActionBar;
 import android.app.Fragment;
-import android.content.Context;
-import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.SystemClock;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.LinearLayoutManager;
@@ -47,16 +38,11 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.OvershootInterpolator;
 import android.widget.Chronometer;
 import android.widget.FrameLayout;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
-
-import com.github.clans.fab.FloatingActionButton;
-import com.github.clans.fab.FloatingActionMenu;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -98,7 +84,7 @@ public class CameraFragment extends Fragment
   private RecyclerView mCameraModeSwitcherRV;
   RecyclerView.LayoutManager mLayoutManager;
   private CameraModeSwitcherAdapter mAdapter;
-  public FloatingActionButton mFinishBtn;
+  public AppCompatImageView mBackBtn;
   private View progress;
   private boolean isVideoRecording = false;
   private boolean mirrorPreview = false;
@@ -411,7 +397,7 @@ public class CameraFragment extends Fragment
 
                 if (centerPos == 0) {
                     mCameraBtn.setImageResource(R.drawable.camera_pic_effect);
-                    chronometer.setVisibility(View.GONE);
+                    chronometer.setVisibility(View.INVISIBLE);
                     // Reset to gonna take a picture
                     mIsVideoCameraSelected = false;
                 } else if (centerPos == 1) {
@@ -427,10 +413,8 @@ public class CameraFragment extends Fragment
 
     // set current default flash mode to off
     mCurrentFlashMode = FlashMode.OFF;
-
-    mFinishBtn =
-            v.findViewById(R.id.done_fab_btn);
-    mFinishBtn.hide(false);
+    mBackBtn =
+            v.findViewById(R.id.back_imgview);
 
     reverseChronometer =
             v.findViewById(R.id.rchrono);
@@ -493,15 +477,19 @@ public class CameraFragment extends Fragment
 
           case OFF:
             mCurrentFlashMode = FlashMode.AUTO;
+            imgFlash.setImageResource(R.drawable.ic_noun_flash_auto);
             break;
           case AUTO:
             mCurrentFlashMode = FlashMode.ALWAYS;
+            imgFlash.setImageResource(R.drawable.ic_noun_flash_on);
             break;
           case ALWAYS:
             mCurrentFlashMode = FlashMode.TORCH;
+            imgFlash.setImageResource(R.drawable.ic_noun_torch);
             break;
           case TORCH:
             mCurrentFlashMode = FlashMode.OFF;
+            imgFlash.setImageResource(R.drawable.ic_noun_flash_off);
             break;
         }
 
@@ -610,12 +598,6 @@ public class CameraFragment extends Fragment
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void onEventMainThread(CameraEngine.OpenedEvent event) {
     if (event.exception == null) {
-      mFinishBtn.postDelayed(new Runnable() {
-        @Override
-        public void run() {
-          mFinishBtn.show(true);
-        }
-      }, 300);
       progress.setVisibility(View.GONE);
       imgSwitchFacing.setEnabled(canSwitchSources());
       mCameraBtn.setEnabled(true);
@@ -742,7 +724,6 @@ public class CameraFragment extends Fragment
 //          R.color.cwac_cam2_video_fab_pressed);
       imgSwitchFacing.setVisibility(View.INVISIBLE);
       imgFlash.setVisibility(View.INVISIBLE);
-      mFinishBtn.hide(true);
       mCameraModeSwitcherRV.setVisibility(View.INVISIBLE);
       configureChronometer();
     } catch (Exception e) {

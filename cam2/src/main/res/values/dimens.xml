@@ -1,11 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <dimen name="cwac_cam2_fragment_drawer_width">128dp</dimen>
-  <dimen name="cwac_cam2_fragment_drawer_shadow_size">4dp</dimen>
-  <dimen name="cwac_cam2_fragment_drawer_offset_distance">16dp</dimen>
-  <dimen name="cwac_cam2_fragment_panel_padding">16dp</dimen>
-  <dimen name="cwac_cam2_fragment_panel_item_width">96dp</dimen>
-  <dimen name="cwac_cam2_fragment_panel_item_height">48dp</dimen>
-  <dimen name="cwac_cam2_fragment_chrono_margin">16dp</dimen>
+    <dimen name="cwac_cam2_fragment_chrono_margin">16dp</dimen>
   <dimen name="cwac_cam2_gridline_width">1dp</dimen>
 </resources>

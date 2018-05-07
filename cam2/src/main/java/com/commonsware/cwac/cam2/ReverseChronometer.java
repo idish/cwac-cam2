@@ -20,7 +20,7 @@ import android.text.format.DateUtils;
 import android.util.AttributeSet;
 import android.widget.TextView;
 
-public class ReverseChronometer extends TextView implements Runnable {
+public class ReverseChronometer extends android.support.v7.widget.AppCompatTextView implements Runnable {
   interface Listener {
     void onCountdownCompleted();
   }

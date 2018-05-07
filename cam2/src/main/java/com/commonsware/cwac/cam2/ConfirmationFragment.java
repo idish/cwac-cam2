@@ -107,28 +107,6 @@ public class ConfirmationFragment extends Fragment {
     }
   }
 
-  @Override
-  public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-    inflater.inflate(R.menu.cwac_cam2_confirm, menu);
-  }
-
-  @Override
-  public boolean onOptionsItemSelected(MenuItem item) {
-    if (item.getItemId()==android.R.id.home) {
-      getContract().completeRequest(imageContext, false);
-    }
-    else if (item.getItemId()==R.id.cwac_cam2_ok) {
-      getContract().completeRequest(imageContext, true);
-    }
-    else if (item.getItemId()==R.id.cwac_cam2_retry) {
-      getContract().retakePicture();
-    }
-    else {
-      return(super.onOptionsItemSelected(item));
-    }
-
-    return(true);
-  }
 
   public void setImage(ImageContext imageContext, Float quality) {
     this.imageContext=imageContext;
