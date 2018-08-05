@@ -25,7 +25,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.LinearLayoutManager;
@@ -725,6 +724,7 @@ public class CameraFragment extends Fragment
       imgSwitchFacing.setVisibility(View.INVISIBLE);
       imgFlash.setVisibility(View.INVISIBLE);
       mCameraModeSwitcherRV.setVisibility(View.INVISIBLE);
+      mBackBtn.setVisibility(View.INVISIBLE);
       configureChronometer();
     } catch (Exception e) {
       Log.e(getClass().getSimpleName(),
@@ -752,13 +752,14 @@ public class CameraFragment extends Fragment
   }
 
   private void setVideoFABToNormal() {
-//    mCameraBtn.setImageResource(
-//      R.drawable.cwac_cam2_ic_videocam);
+    mCameraBtn.setImageResource(
+      R.drawable.camera_vid_effect);
+    chronometer.stop();
 //    mCameraBtn.setColorNormalResId(
 //      R.color.cwac_cam2_picture_fab);
 //    mCameraBtn.setColorPressedResId(
 //      R.color.cwac_cam2_picture_fab_pressed);
-    imgSwitchFacing.setEnabled(canSwitchSources());
+//    imgSwitchFacing.setEnabled(canSwitchSources());
   }
 
   private boolean canSwitchSources() {
