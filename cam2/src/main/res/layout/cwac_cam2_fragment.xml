@@ -67,7 +67,7 @@
             android:layout_weight="1"
             android:gravity="center">
 
-            <android.support.v7.widget.AppCompatImageView
+            <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/cwac_cam2_switch_camera_btn"
                 android:layout_width="36dp"
                 android:layout_height="36dp"
@@ -90,7 +90,7 @@
         android:gravity="center"
         android:layout_weight="1">
 
-        <android.support.v7.widget.AppCompatImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/cwac_cam2_flash_btn"
             android:layout_width="30dp"
             android:layout_height="30dp"
@@ -126,7 +126,7 @@
         android:layout_above="@+id/cameraRowLayout"
         android:layout_centerHorizontal="true">
 
-        <android.support.v7.widget.AppCompatImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0"
@@ -141,7 +141,7 @@
             android:layout_weight="1"
             android:max="100" />
 
-        <android.support.v7.widget.AppCompatImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0"
@@ -171,7 +171,7 @@
             android:layout_centerVertical="true"
             android:layout_toLeftOf="@+id/cwac_cam2_picture_btn">
 
-            <android.support.v7.widget.AppCompatImageView
+            <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/back_imgview"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
@@ -195,21 +195,21 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true">
 
-        <android.support.v7.widget.AppCompatImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:layout_width="12dp"
             android:layout_height="6dp"
             android:layout_gravity="bottom|center_horizontal"
             app:srcCompat="@drawable/ic_my_up_triangle_vector" />
 
 
-        <android.support.v7.widget.RecyclerView
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/camera_mode_switcher_rv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingBottom="12dp"
             android:paddingTop="12dp">
 
-        </android.support.v7.widget.RecyclerView>
+        </androidx.recyclerview.widget.RecyclerView>
 
     </FrameLayout>
 </RelativeLayout>

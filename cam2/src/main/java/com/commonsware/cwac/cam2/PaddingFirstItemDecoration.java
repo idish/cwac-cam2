@@ -1,9 +1,8 @@
 package com.commonsware.cwac.cam2;
 
 import android.graphics.Rect;
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
-import android.view.ViewGroup;
 
 /**
  * Created by Idan on 6/18/2017.

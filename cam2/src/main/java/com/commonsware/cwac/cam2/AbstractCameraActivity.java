@@ -16,7 +16,6 @@ package com.commonsware.cwac.cam2;
 
 import android.annotation.TargetApi;
 import android.app.ActionBar;
-import android.app.Activity;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
@@ -27,7 +26,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.provider.MediaStore;
-import android.support.v4.app.FragmentActivity;
+import androidx.fragment.app.FragmentActivity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
