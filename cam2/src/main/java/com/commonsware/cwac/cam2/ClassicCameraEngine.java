@@ -20,6 +20,8 @@ import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.graphics.YuvImage;
 import android.hardware.Camera;
+import android.media.AudioManager;
+import android.media.MediaActionSound;
 import android.media.MediaRecorder;
 import android.os.Build;
 import android.util.Log;
@@ -46,8 +48,14 @@ public class ClassicCameraEngine extends CameraEngine
   private int previewWidth, previewHeight;
   private int previewFormat;
 
+  private AudioManager audioManager;
+  private CustomMediaActionSound shutter=new CustomMediaActionSound();
+
+
   public ClassicCameraEngine(Context ctxt) {
     this.ctxt=ctxt.getApplicationContext();
+    audioManager = (AudioManager) ctxt.getSystemService(Context.AUDIO_SERVICE);
+    shutter.load(MediaActionSound.SHUTTER_CLICK);
   }
 
   /**
@@ -233,12 +241,14 @@ public class ClassicCameraEngine extends CameraEngine
         }
 
         try {
-          camera.takePicture(new Camera.ShutterCallback() {
-                               @Override
-                               public void onShutter() {
-                                 // empty plays a sound -- go figure
-                               }
-                             }, null,
+
+          // Shutter sound volume aware
+          int volume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+          int maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+          float volumePercentage = (float)volume / maxVolume;
+          shutter.play(MediaActionSound.SHUTTER_CLICK, volumePercentage);
+
+          camera.takePicture(null, null,
               new TakePictureTransaction(session.getContext(), xact));
         }
         catch (Exception e) {

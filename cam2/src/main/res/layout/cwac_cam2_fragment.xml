@@ -72,7 +72,7 @@
                 android:layout_width="36dp"
                 android:layout_height="36dp"
                 android:clickable="true"
-                app:srcCompat="@drawable/ic_noun_switch_camera"
+                android:src="@drawable/ic_noun_switch_camera"
                 android:focusable="true" />
         </LinearLayout>
 
@@ -95,7 +95,7 @@
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:clickable="true"
-            app:srcCompat="@drawable/ic_noun_flash_off"
+            android:src="@drawable/ic_noun_flash_off"
             android:focusable="true" />
 
     </LinearLayout>
@@ -130,7 +130,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0"
-            app:srcCompat="@drawable/ic_remove_white_32dp_vector"/>
+            android:src="@drawable/ic_remove_white_32dp_vector"/>
 
         <SeekBar
             android:id="@+id/cwac_cam2_zoom"
@@ -145,7 +145,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0"
-            app:srcCompat="@drawable/ic_add_white_32dp_vector"/>
+            android:src="@drawable/ic_add_white_32dp_vector"/>
 
     </LinearLayout>
     <RelativeLayout
@@ -176,14 +176,14 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_centerHorizontal="true"
-                app:srcCompat="@drawable/ic_noun_back" />
+                android:src="@drawable/ic_noun_back" />
 
             <!--<android.support.v7.widget.AppCompatImageView-->
                 <!--android:id="@+id/cwac_cam2_gallery_btn"-->
                 <!--android:layout_width="40dp"-->
                 <!--android:layout_height="40dp"-->
                 <!--android:layout_centerHorizontal="true"-->
-                <!--app:srcCompat="@drawable/ic_camera_done_edited" />-->
+                <!--android:src="@drawable/ic_camera_done_edited" />-->
         </RelativeLayout>
 
 
@@ -199,7 +199,7 @@
             android:layout_width="12dp"
             android:layout_height="6dp"
             android:layout_gravity="bottom|center_horizontal"
-            app:srcCompat="@drawable/ic_my_up_triangle_vector" />
+            android:src="@drawable/ic_my_up_triangle_vector" />
 
 
         <androidx.recyclerview.widget.RecyclerView

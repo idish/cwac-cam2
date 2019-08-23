@@ -30,6 +30,7 @@ import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.StreamConfigurationMap;
+import android.media.AudioManager;
 import android.media.Image;
 import android.media.ImageReader;
 import android.media.MediaActionSound;
@@ -58,12 +59,14 @@ import java.util.concurrent.TimeUnit;
 public class CameraTwoEngine extends CameraEngine {
   private final Context ctxt;
   private CameraManager mgr;
+  private AudioManager audioManager;
+
   final private HandlerThread handlerThread=new HandlerThread(getClass().getSimpleName(),
       android.os.Process.THREAD_PRIORITY_BACKGROUND);
   final private Handler handler;
   final private Semaphore lock=new Semaphore(1);
 //  private CountDownLatch closeLatch=null;
-  private MediaActionSound shutter=new MediaActionSound();
+  private CustomMediaActionSound shutter=new CustomMediaActionSound();
   private List<Descriptor> descriptors=null;
 
   /**
@@ -75,6 +78,7 @@ public class CameraTwoEngine extends CameraEngine {
     this.ctxt=ctxt.getApplicationContext();
     mgr=(CameraManager)this.ctxt.
         getSystemService(Context.CAMERA_SERVICE);
+    audioManager = (AudioManager) ctxt.getSystemService(Context.AUDIO_SERVICE);
     handlerThread.start();
     handler=new Handler(handlerThread.getLooper());
     shutter.load(MediaActionSound.SHUTTER_CLICK);
@@ -685,7 +689,12 @@ public class CameraTwoEngine extends CameraEngine {
                                  long timestamp, long frameNumber) {
       super.onCaptureStarted(session, request, timestamp, frameNumber);
 
-      shutter.play(MediaActionSound.SHUTTER_CLICK);
+      // Shutter sound volume aware
+      int volume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+      int maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+
+      float volumePercentage = (float)volume / maxVolume;
+      shutter.play(MediaActionSound.SHUTTER_CLICK, volumePercentage);
     }
 
     @Override
@@ -901,6 +910,7 @@ public class CameraTwoEngine extends CameraEngine {
       this.bus=bus;
       this.xact=xact;
       this.ctxt=ctxt.getApplicationContext();
+
     }
 
     @Override

@@ -3,7 +3,7 @@ apply plugin: 'com.github.dcendents.android-maven' // ADD THIS
 
 dependencies {
     implementation 'org.greenrobot:eventbus:3.1.1'
-    implementation 'androidx.appcompat:appcompat:1.0.0'
+    implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'androidx.recyclerview:recyclerview:1.0.0'
     implementation 'me.everything:overscroll-decor-android:1.0.4'
     // Used for android.app.FragmentPagerAdapter (native support)
@@ -13,10 +13,10 @@ dependencies {
 
 android {
     compileSdkVersion 28
-    buildToolsVersion '28.0.2'
+    buildToolsVersion '28.0.3'
 
     defaultConfig {
-        minSdkVersion 15
+        minSdkVersion 21
         targetSdkVersion 28
         vectorDrawables.useSupportLibrary = true
     }
