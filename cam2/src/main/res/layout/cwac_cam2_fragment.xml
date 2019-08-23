@@ -71,7 +71,7 @@
                 android:id="@+id/cwac_cam2_switch_camera_btn"
                 android:layout_width="36dp"
                 android:layout_height="36dp"
-                android:clickable="true"
+                android:clickable="false"
                 android:src="@drawable/ic_noun_switch_camera"
                 android:focusable="true" />
         </LinearLayout>
@@ -161,7 +161,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:clickable="true"
+            android:clickable="false"
             android:src="@drawable/camera_pic_effect"
             android:focusable="true" />
 

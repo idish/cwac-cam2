@@ -232,8 +232,8 @@ public class CameraFragment extends Fragment
           }
         }, 60);
 
-        mCameraBtn.setEnabled(true);
-        imgSwitchFacing.setEnabled(canSwitchSources());
+        mCameraBtn.setClickable(true);
+        imgSwitchFacing.setClickable(canSwitchSources());
       }
     }
   }
@@ -428,7 +428,7 @@ public class CameraFragment extends Fragment
 //      fabVideo.setOnClickListener(new View.OnClickListener() {
 //        @Override
 //        public void onClick(View view) {
-//          mCameraBtn.setEnabled(false);
+//          mCameraBtn.setClickable(false);
 //          imgSwitchFacing.setEnabled(false);
 //          ctlr.getEngine().getBus().post(new CameraModeChanged(false));
 //        }
@@ -445,7 +445,7 @@ public class CameraFragment extends Fragment
       @Override
       public void onClick(View view) {
         progress.setVisibility(View.VISIBLE);
-        imgSwitchFacing.setEnabled(false);
+        imgSwitchFacing.setClickable(false);
 
         try {
           // Flip the facing, necessary because we access EXTRA_FACING to detect camera facing in runtime
@@ -509,8 +509,8 @@ public class CameraFragment extends Fragment
     onHiddenChanged(false); // hack, since this does not get
     // called on initial display
 
-    mCameraBtn.setEnabled(false);
-    imgSwitchFacing.setEnabled(false);
+    mCameraBtn.setClickable(false);
+    imgSwitchFacing.setClickable(false);
 
     if (ctlr != null && ctlr.getNumberOfCameras() > 0) {
       prepController();
@@ -598,8 +598,8 @@ public class CameraFragment extends Fragment
   public void onEventMainThread(CameraEngine.OpenedEvent event) {
     if (event.exception == null) {
       progress.setVisibility(View.GONE);
-      imgSwitchFacing.setEnabled(canSwitchSources());
-      mCameraBtn.setEnabled(true);
+      imgSwitchFacing.setClickable(canSwitchSources());
+      mCameraBtn.setClickable(true);
       zoomSlider = getView().findViewById(R.id.cwac_cam2_zoom);
       zoomSliderLayout = getView().findViewById(R.id.cwac_cam2_zoom_layout);
 //      zoomSlider.getProgressDrawable().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN);
@@ -687,8 +687,8 @@ public class CameraFragment extends Fragment
               getArguments().getBoolean(ARG_SKIP_ORIENTATION_NORMALIZATION,
                       false));
     }
-    mCameraBtn.setEnabled(false);
-    imgSwitchFacing.setEnabled(false);
+    mCameraBtn.setClickable(false);
+    imgSwitchFacing.setClickable(false);
     ctlr.takePicture(b.build());
   }
 
