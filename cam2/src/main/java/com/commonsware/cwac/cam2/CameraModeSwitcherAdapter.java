@@ -32,9 +32,9 @@ public class CameraModeSwitcherAdapter extends RecyclerView.Adapter<CameraModeSw
     @Override
     public void onBindViewHolder(CameraModeSwitcherViewHolder holder, final int position) {
         if (position == 0) {
-            holder.cameraModeTxtView.setText("PHOTO");
+            holder.cameraModeTxtView.setText(R.string.PHOTO);
         } else if (position == 1){
-            holder.cameraModeTxtView.setText("VIDEO");
+            holder.cameraModeTxtView.setText(R.string.VIDEO);
         }
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
